@@ -57,12 +57,12 @@ const SCENES = [
   },
   {
     id: 'context',
-    seconds: 3.6,
+    seconds: 4.0,
     render: (durationInFrames: number) => <Context durationInFrames={durationInFrames} />,
   },
   {
     id: 'draft',
-    seconds: 4.6,
+    seconds: 4.8,
     render: (durationInFrames: number) => <Draft durationInFrames={durationInFrames} />,
   },
   {

@@ -7,23 +7,30 @@ import {
   useVideoConfig,
 } from 'remotion';
 import {BRAND} from '../../../brand';
-import {Card, Scene, Sfx, SparkIcon} from '../../../components/ui';
+import {Card, ScanBeam, Scene, Sfx, SparkIcon} from '../../../components/ui';
 import {SFX, SFX_VOLUME} from '../../../sfx';
 import {FONT_FAMILY} from '../../../fonts';
 import {springEnter} from '../../../lib/animation';
 import {useScale} from '../../../lib/layout';
 
 /**
- * BEAT 3 - the enriched draft writes itself.
+ * BEAT 3 - the laser writes the reply.
  *
- * Three phrases in the reply could not have been written from the incoming
- * email alone, so each one is tinted and carries the source it came from.
- * That pairing is the proof: without the tags this is just autocomplete, and
- * with them the viewer can see the draft is assembled from their own history.
+ * A beam crosses the compose box top to bottom and the draft exists in its
+ * wake: everything above the beam is written, everything below is still
+ * blank. It is the same beam that read the sources in beat 2, which is the
+ * argument of the whole piece in one visual - what was scanned out of the
+ * client's history is scanned back into the reply.
  *
- * The whole paragraph is laid out from frame 0 and revealed word by word
- * through opacity. Appending words instead would re-wrap the paragraph on
- * every reveal, which reads as a twitch rather than as writing.
+ * The reveal is a clip on the paragraph, not a per-word opacity. The text is
+ * laid out in full from frame 0 and simply uncovered, so the beam's edge and
+ * the text's edge are the same line by construction and can never drift. It
+ * also means the wrap is fixed - appending words instead would re-wrap the
+ * paragraph on every frame, which reads as a twitch rather than as writing.
+ *
+ * Three phrases could not have been written from the incoming email alone, so
+ * each is tinted and carries the source it came from. That pairing is the
+ * proof: without the tags this is just autocomplete.
  */
 
 type Part = {text: string; source?: string};
@@ -38,40 +45,17 @@ const PARTS: Part[] = [
   {text: 'so you can review it this week.'},
 ];
 
+const SCAN_FROM = 8;
+const SCAN_TO = 86;
+const SEND_AT = SCAN_TO + 8;
+
 /**
- * Give every word a position in the whole paragraph, so one counter drives the
- * reveal and each highlight knows when its last word has landed.
+ * Where each highlighted phrase sits down the compose box, as a fraction of
+ * it, so its sound fires as the beam crosses it. Derived from the body's own
+ * padding and line height: four lines, with the tinted phrases opening lines
+ * two, three and four.
  */
-const build = () => {
-  let index = 0;
-
-  return PARTS.map((part) => {
-    const words = part.text.split(' ').map((word) => ({word, index: index++}));
-
-    return {
-      source: part.source,
-      words,
-      lastIndex: index - 1,
-    };
-  });
-};
-
-const PARAGRAPH = build();
-const WORD_COUNT = PARAGRAPH.reduce((n, part) => n + part.words.length, 0);
-
-const DRAFT_FROM = 6;
-/** Lower = faster writing. */
-const FRAMES_PER_WORD = 1.6;
-/** A word fades in over this many frames rather than snapping on. */
-const WORD_FADE = 3;
-
-const wordLands = (index: number): number => DRAFT_FROM + index * FRAMES_PER_WORD;
-
-const DRAFT_DONE = wordLands(WORD_COUNT - 1) + WORD_FADE;
-const SEND_AT = Math.round(DRAFT_DONE + 8);
-
-/** A keystroke run under the writing, every few words rather than per word. */
-const KEY_EVERY = 4;
+const HIGHLIGHT_AT = [0.405, 0.593, 0.781];
 
 export const Draft: React.FC<{durationInFrames: number}> = ({durationInFrames}) => {
   const frame = useCurrentFrame();
@@ -87,35 +71,30 @@ export const Draft: React.FC<{durationInFrames: number}> = ({durationInFrames}) 
     stiffness: 140,
   });
 
-  const wordOpacity = (index: number): number =>
-    interpolate(frame, [wordLands(index), wordLands(index) + WORD_FADE], [0, 1], {
-      extrapolateLeft: 'clamp',
-      extrapolateRight: 'clamp',
-      easing: Easing.out(Easing.cubic),
-    });
-
-  /** A highlight fills once its final word has landed. */
-  const fillFor = (lastIndex: number): number =>
-    interpolate(frame, [wordLands(lastIndex), wordLands(lastIndex) + 7], [0, 1], {
-      extrapolateLeft: 'clamp',
-      extrapolateRight: 'clamp',
-      easing: Easing.out(Easing.cubic),
-    });
-
-  const keyFrames = Array.from({length: Math.floor(WORD_COUNT / KEY_EVERY)}, (_, i) =>
-    wordLands(i * KEY_EVERY),
-  );
+  /** 0 -> 1 as the beam crosses the compose box. Drives the beam AND the clip. */
+  const reveal = interpolate(frame, [SCAN_FROM, SCAN_TO], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+    easing: Easing.inOut(Easing.quad),
+  });
 
   return (
     <Scene durationInFrames={durationInFrames}>
-      {keyFrames.map((at, i) => (
+      <Sfx
+        src={SFX.scan}
+        at={SCAN_FROM}
+        durationInFrames={SCAN_TO - SCAN_FROM + 8}
+        volume={SFX_VOLUME.scan}
+        name="Draft sweep"
+      />
+      {HIGHLIGHT_AT.map((position, i) => (
         <Sfx
-          key={`key-${i}`}
-          src={SFX.key}
-          at={at}
-          durationInFrames={4}
-          name={`Key ${i + 1}`}
-          volume={SFX_VOLUME.key * 0.5 * (0.85 + ((i * 37) % 7) / 24)}
+          key={`ping-${i}`}
+          src={SFX.ping}
+          at={SCAN_FROM + position * (SCAN_TO - SCAN_FROM)}
+          durationInFrames={12}
+          volume={SFX_VOLUME.ping}
+          name={`Enriched phrase ${i + 1}`}
         />
       ))}
       <Sfx
@@ -165,84 +144,79 @@ export const Draft: React.FC<{durationInFrames: number}> = ({durationInFrames}) 
             </div>
           </div>
 
-          {/* The draft */}
-          <div
-            style={{
-              padding: `${38 * scale}px ${36 * scale}px`,
-              fontFamily: FONT_FAMILY,
-              fontSize: 28 * scale,
-              lineHeight: 2.05,
-              color: BRAND.inkSoft,
-            }}
-          >
-            {PARAGRAPH.map((part, partIndex) => {
-              const words = part.words.map((w, i) => (
-                <span key={w.index} style={{opacity: wordOpacity(w.index)}}>
-                  {w.word}
-                  {i < part.words.length - 1 ? ' ' : ''}
-                </span>
-              ));
+          {/* The compose box. The beam and the clip share this box, so the
+              written edge and the beam are the same line. */}
+          <div style={{position: 'relative'}}>
+            <div
+              style={{
+                padding: `${38 * scale}px ${36 * scale}px`,
+                fontFamily: FONT_FAMILY,
+                fontSize: 28 * scale,
+                lineHeight: 2.05,
+                color: BRAND.inkSoft,
+                // Everything below the beam has not been written yet.
+                clipPath: `inset(0 0 ${(1 - reveal) * 100}% 0)`,
+              }}
+            >
+              {PARTS.map((part, partIndex) => {
+                if (!part.source) {
+                  return <React.Fragment key={partIndex}>{part.text} </React.Fragment>;
+                }
 
-              if (!part.source) {
-                return <React.Fragment key={partIndex}>{words} </React.Fragment>;
-              }
-
-              const fill = fillFor(part.lastIndex);
-
-              return (
-                <React.Fragment key={partIndex}>
-                  <span
-                    style={{
-                      position: 'relative',
-                      display: 'inline-block',
-                      padding: `${2 * scale}px ${7 * scale}px`,
-                    }}
-                  >
-                    <span
-                      style={{
-                        position: 'absolute',
-                        inset: 0,
-                        background: BRAND.orangeTint,
-                        border: `${1.5 * scale}px solid ${BRAND.orangeTintEdge}`,
-                        borderRadius: 8 * scale,
-                        transformOrigin: 'left center',
-                        transform: `scaleX(${fill})`,
-                      }}
-                    />
+                return (
+                  <React.Fragment key={partIndex}>
                     <span
                       style={{
                         position: 'relative',
-                        fontWeight: fill > 0.5 ? 600 : 400,
-                        color: fill > 0.5 ? BRAND.ink : 'inherit',
+                        display: 'inline-block',
+                        padding: `${2 * scale}px ${7 * scale}px`,
                       }}
                     >
-                      {words}
+                      <span
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          background: BRAND.orangeTint,
+                          border: `${1.5 * scale}px solid ${BRAND.orangeTintEdge}`,
+                          borderRadius: 8 * scale,
+                        }}
+                      />
+                      <span
+                        style={{
+                          position: 'relative',
+                          fontWeight: 600,
+                          color: BRAND.ink,
+                        }}
+                      >
+                        {part.text}
+                      </span>
                     </span>
-                  </span>
-                  {/* The receipt for that phrase. */}
-                  <span
-                    style={{
-                      display: 'inline-block',
-                      marginLeft: 8 * scale,
-                      padding: `${3 * scale}px ${11 * scale}px`,
-                      borderRadius: 999,
-                      background: BRAND.card,
-                      border: `${1.5 * scale}px solid ${BRAND.orangeTintEdge}`,
-                      fontFamily: FONT_FAMILY,
-                      fontWeight: 600,
-                      fontSize: 16 * scale,
-                      lineHeight: 1.4,
-                      color: BRAND.orangeDeep,
-                      whiteSpace: 'nowrap',
-                      opacity: fill,
-                      verticalAlign: 'middle',
-                    }}
-                  >
-                    {part.source}
-                  </span>{' '}
-                </React.Fragment>
-              );
-            })}
+                    {/* The receipt for that phrase. */}
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        marginLeft: 8 * scale,
+                        padding: `${3 * scale}px ${11 * scale}px`,
+                        borderRadius: 999,
+                        background: BRAND.card,
+                        border: `${1.5 * scale}px solid ${BRAND.orangeTintEdge}`,
+                        fontFamily: FONT_FAMILY,
+                        fontWeight: 600,
+                        fontSize: 16 * scale,
+                        lineHeight: 1.4,
+                        color: BRAND.orangeDeep,
+                        whiteSpace: 'nowrap',
+                        verticalAlign: 'middle',
+                      }}
+                    >
+                      {part.source}
+                    </span>{' '}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+
+            <ScanBeam scale={scale} progress={reveal} />
           </div>
 
           {/* Ready to send */}
