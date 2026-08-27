@@ -26,8 +26,8 @@ const TOTAL = OPPORTUNITIES.reduce((sum, o) => sum + o.value, 0);
 const money = (n: number) => '$' + Math.round(n).toLocaleString('en-US');
 
 /** Frames between consecutive rows landing. */
-const ROW_STAGGER = 6;
-const FIRST_ROW = 8;
+const ROW_STAGGER = 5;
+const FIRST_ROW = 6;
 
 export const Opportunities: React.FC<{durationInFrames: number}> = ({
   durationInFrames,

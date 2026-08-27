@@ -26,12 +26,12 @@ export const EndCard: React.FC<{durationInFrames: number; url: string}> = ({
   const {fps} = useVideoConfig();
   const scale = useScale();
 
-  const ruleIn = interpolate(frame, [4, 20], [0, 1], {
+  const ruleIn = interpolate(frame, [3, 16], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
     easing: Easing.out(Easing.cubic),
   });
-  const urlIn = springEnter({frame, fps, delay: 10, damping: 200, stiffness: 95});
+  const urlIn = springEnter({frame, fps, delay: 8, damping: 200, stiffness: 95});
 
   return (
     <Scene durationInFrames={durationInFrames} hold>

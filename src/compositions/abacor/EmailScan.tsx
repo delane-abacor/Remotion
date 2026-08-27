@@ -38,7 +38,7 @@ export const EmailScan: React.FC<{durationInFrames: number}> = ({durationInFrame
   const labelIn = springEnter({frame, fps, damping: 200, stiffness: 90});
 
   // The beam sweeps between these frames.
-  const scan = interpolate(frame, [8, 50], [0, 1], {
+  const scan = interpolate(frame, [6, 42], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
     easing: Easing.inOut(Easing.quad),
@@ -195,7 +195,7 @@ export const EmailScan: React.FC<{durationInFrames: number}> = ({durationInFrame
               scale={scale}
               frame={frame}
               fps={fps}
-              delay={54}
+              delay={44}
               style={{right: 0, top: -28 * scale}}
             />
           </div>
