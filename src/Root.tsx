@@ -7,6 +7,12 @@ import {
   promoDuration,
 } from './compositions/AbacorPromo';
 import {
+  AbacorPromoShort,
+  abacorPromoShortDefaultProps,
+  abacorPromoShortSchema,
+  promoShortDuration,
+} from './compositions/abacor-short/AbacorPromoShort';
+import {
   KineticText,
   kineticTextDefaultProps,
   kineticTextSchema,
@@ -55,6 +61,16 @@ export const RemotionRoot: React.FC = () => {
         {...CANVAS}
         schema={abacorPromoSchema}
         defaultProps={abacorPromoDefaultProps}
+      />
+
+      {/* The same story re-cut for paid social - see abacor-short/. */}
+      <Composition
+        id="AbacorPromoShort"
+        component={AbacorPromoShort}
+        durationInFrames={promoShortDuration()}
+        {...CANVAS}
+        schema={abacorPromoShortSchema}
+        defaultProps={abacorPromoShortDefaultProps}
       />
 
       {/* Full-frame graphics - rendered on an opaque background. */}
