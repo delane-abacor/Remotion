@@ -27,8 +27,8 @@ const START_REVENUE = 486000;
 const END_REVENUE = 927500;
 
 const CHART_HEIGHT = 300;
-const BAR_STAGGER = 5;
-const FIRST_BAR = 12;
+const BAR_STAGGER = 4;
+const FIRST_BAR = 8;
 
 export const RevenueGrowth: React.FC<{durationInFrames: number}> = ({
   durationInFrames,
@@ -41,7 +41,7 @@ export const RevenueGrowth: React.FC<{durationInFrames: number}> = ({
   const cardIn = springEnter({frame, fps, delay: 2, damping: 200, stiffness: 80});
 
   // Headline number counts from the starting revenue to the new one.
-  const countProgress = interpolate(frame, [FIRST_BAR, FIRST_BAR + 52], [0, 1], {
+  const countProgress = interpolate(frame, [FIRST_BAR, FIRST_BAR + 40], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
     easing: Easing.out(Easing.cubic),
@@ -100,7 +100,7 @@ export const RevenueGrowth: React.FC<{durationInFrames: number}> = ({
                   padding: `${10 * scale}px ${18 * scale}px`,
                   borderRadius: 999,
                   background: BRAND.greenTint,
-                  opacity: springEnter({frame, fps, delay: FIRST_BAR + 34, damping: 200}),
+                  opacity: springEnter({frame, fps, delay: FIRST_BAR + 26, damping: 200}),
                 }}
               >
                 <svg
@@ -215,7 +215,7 @@ export const RevenueGrowth: React.FC<{durationInFrames: number}> = ({
               fontFamily: FONT_FAMILY,
               fontSize: 21 * scale,
               color: BRAND.inkSoft,
-              opacity: springEnter({frame, fps, delay: FIRST_BAR + 44, damping: 200}),
+              opacity: springEnter({frame, fps, delay: FIRST_BAR + 34, damping: 200}),
             }}
           >
             Opportunities surfaced automatically &middot; nothing left buried in a thread

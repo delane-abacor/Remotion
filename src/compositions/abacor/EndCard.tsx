@@ -21,18 +21,18 @@ export const EndCard: React.FC<{durationInFrames: number}> = ({durationInFrames}
 
   // The mark drops in, then its cut-outs open, then the wordmark wipes across.
   const markIn = springEnter({frame, fps, delay: 4, damping: 15, stiffness: 120});
-  const reveal = interpolate(frame, [14, 34], [0, 1], {
+  const reveal = interpolate(frame, [10, 26], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
     easing: Easing.out(Easing.cubic),
   });
-  const wordmark = interpolate(frame, [26, 50], [0, 1], {
+  const wordmark = interpolate(frame, [20, 40], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
     easing: Easing.out(Easing.cubic),
   });
-  const urlIn = springEnter({frame, fps, delay: 48, damping: 200, stiffness: 90});
-  const ruleIn = springEnter({frame, fps, delay: 42, damping: 200, stiffness: 110});
+  const urlIn = springEnter({frame, fps, delay: 38, damping: 200, stiffness: 90});
+  const ruleIn = springEnter({frame, fps, delay: 33, damping: 200, stiffness: 110});
 
   return (
     <Scene durationInFrames={durationInFrames} hold>
