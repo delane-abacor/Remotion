@@ -13,6 +13,12 @@ import {
   promoShortDuration,
 } from './compositions/abacor-short/AbacorPromoShort';
 import {
+  AbacorEmailAssistant,
+  abacorEmailDefaultProps,
+  abacorEmailSchema,
+  emailAssistantDuration,
+} from './compositions/abacor-email/AbacorEmailAssistant';
+import {
   KineticText,
   kineticTextDefaultProps,
   kineticTextSchema,
@@ -71,6 +77,16 @@ export const RemotionRoot: React.FC = () => {
         {...CANVAS}
         schema={abacorPromoShortSchema}
         defaultProps={abacorPromoShortDefaultProps}
+      />
+
+      {/* The email assistant story - see abacor-email/. */}
+      <Composition
+        id="AbacorEmailAssistant"
+        component={AbacorEmailAssistant}
+        durationInFrames={emailAssistantDuration()}
+        {...CANVAS}
+        schema={abacorEmailSchema}
+        defaultProps={abacorEmailDefaultProps}
       />
 
       {/* Full-frame graphics - rendered on an opaque background. */}
