@@ -65,7 +65,9 @@ export const StepLabel: React.FC<{
     >
       {step}
     </span>
-    <span style={{width: 22 * scale, height: 2 * scale, background: BRAND.orangeTintEdge}} />
+    <span
+      style={{width: 22 * scale, height: 2 * scale, background: BRAND.orangeTintEdge}}
+    />
     <span
       style={{
         fontFamily: FONT_FAMILY,
@@ -255,7 +257,13 @@ export const DetectChip: React.FC<{
 
 /** Four-point sparkle, echoing the product's "Enhanced Notes" affordance. */
 export const SparkIcon: React.FC<{size: number; color: string}> = ({size, color}) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{display: 'block'}}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    style={{display: 'block'}}
+  >
     <path
       d="M12 1.5c.9 4.6 2.2 6.6 6.8 7.5-4.6.9-5.9 2.9-6.8 7.5-.9-4.6-2.2-6.6-6.8-7.5 4.6-.9 5.9-2.9 6.8-7.5Z"
       fill={color}

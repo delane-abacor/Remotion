@@ -1,7 +1,21 @@
 import React from 'react';
-import {AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+  AbsoluteFill,
+  Easing,
+  interpolate,
+  useCurrentFrame,
+  useVideoConfig,
+} from 'remotion';
 import {BRAND} from '../../brand';
-import {Card, DetectChip, Highlight, Monogram, ScanBeam, Scene, StepLabel} from '../../components/ui';
+import {
+  Card,
+  DetectChip,
+  Highlight,
+  Monogram,
+  ScanBeam,
+  Scene,
+  StepLabel,
+} from '../../components/ui';
 import {FONT_FAMILY} from '../../fonts';
 import {springEnter} from '../../lib/animation';
 import {useScale} from '../../lib/layout';

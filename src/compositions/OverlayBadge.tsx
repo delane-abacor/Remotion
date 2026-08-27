@@ -56,7 +56,10 @@ const EXIT_FRAMES = 16;
 /** Maps the schema's position enum onto flexbox alignment. */
 const ALIGNMENT: Record<
   OverlayBadgeProps['position'],
-  {justifyContent: 'flex-start' | 'center' | 'flex-end'; alignItems: 'flex-start' | 'center' | 'flex-end'}
+  {
+    justifyContent: 'flex-start' | 'center' | 'flex-end';
+    alignItems: 'flex-start' | 'center' | 'flex-end';
+  }
 > = {
   'top-left': {justifyContent: 'flex-start', alignItems: 'flex-start'},
   'top-right': {justifyContent: 'flex-start', alignItems: 'flex-end'},
@@ -89,12 +92,9 @@ export const OverlayBadge: React.FC<OverlayBadgeProps> = ({
   const opacity = enter * (1 - leaving);
 
   // Slow pulse on the accent dot so a static hold still has some life.
-  const pulse = interpolate(
-    Math.sin((frame / fps) * Math.PI * 1.6),
-    [-1, 1],
-    [0.45, 1],
-    {easing: Easing.inOut(Easing.ease)},
-  );
+  const pulse = interpolate(Math.sin((frame / fps) * Math.PI * 1.6), [-1, 1], [0.45, 1], {
+    easing: Easing.inOut(Easing.ease),
+  });
 
   const alignment = ALIGNMENT[position];
 

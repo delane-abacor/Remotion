@@ -43,16 +43,11 @@ export const enterExit = ({
 }: EnterExitOptions): number => {
   const last = lastFrame(durationInFrames);
 
-  return interpolate(
-    frame,
-    [0, enterFrames, last - exitFrames, last],
-    [0, 1, 1, 0],
-    {
-      extrapolateLeft: 'clamp',
-      extrapolateRight: 'clamp',
-      easing,
-    },
-  );
+  return interpolate(frame, [0, enterFrames, last - exitFrames, last], [0, 1, 1, 0], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+    easing,
+  });
 };
 
 type SpringEnterOptions = {

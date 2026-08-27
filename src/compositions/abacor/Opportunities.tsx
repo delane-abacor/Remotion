@@ -1,5 +1,11 @@
 import React from 'react';
-import {AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+  AbsoluteFill,
+  Easing,
+  interpolate,
+  useCurrentFrame,
+  useVideoConfig,
+} from 'remotion';
 import {BRAND} from '../../brand';
 import {Card, Scene, SparkIcon, StepLabel} from '../../components/ui';
 import {DISPLAY_FAMILY, FONT_FAMILY} from '../../fonts';
@@ -17,14 +23,15 @@ const OPPORTUNITIES = [
 
 const TOTAL = OPPORTUNITIES.reduce((sum, o) => sum + o.value, 0);
 
-const money = (n: number) =>
-  '$' + Math.round(n).toLocaleString('en-US');
+const money = (n: number) => '$' + Math.round(n).toLocaleString('en-US');
 
 /** Frames between consecutive rows landing. */
 const ROW_STAGGER = 11;
 const FIRST_ROW = 20;
 
-export const Opportunities: React.FC<{durationInFrames: number}> = ({durationInFrames}) => {
+export const Opportunities: React.FC<{durationInFrames: number}> = ({
+  durationInFrames,
+}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const scale = useScale();
@@ -38,7 +45,11 @@ export const Opportunities: React.FC<{durationInFrames: number}> = ({durationInF
       frame,
       [FIRST_ROW + i * ROW_STAGGER, FIRST_ROW + i * ROW_STAGGER + 16],
       [0, 1],
-      {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.out(Easing.cubic)},
+      {
+        extrapolateLeft: 'clamp',
+        extrapolateRight: 'clamp',
+        easing: Easing.out(Easing.cubic),
+      },
     );
     return sum + o.value * t;
   }, 0);
@@ -192,8 +203,8 @@ export const Opportunities: React.FC<{durationInFrames: number}> = ({durationInF
             }}
           >
             {OPPORTUNITIES.length} opportunities &middot;{' '}
-            <span style={{fontWeight: 700, color: BRAND.navy}}>{money(TOTAL)}</span> added to
-            the pipeline
+            <span style={{fontWeight: 700, color: BRAND.navy}}>{money(TOTAL)}</span> added
+            to the pipeline
           </div>
         </div>
       </AbsoluteFill>

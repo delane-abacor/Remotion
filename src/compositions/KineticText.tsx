@@ -127,7 +127,8 @@ export const KineticText: React.FC<KineticTextProps> = ({
                   color: accentLastWord && isLast ? accentColor : textColor,
                   opacity: enter * (1 - leaving),
                   transform: `translateY(${y}px) scale(${
-                    interpolate(enter, [0, 1], [0.86, 1]) * interpolate(leaving, [0, 1], [1, 0.9])
+                    interpolate(enter, [0, 1], [0.86, 1]) *
+                    interpolate(leaving, [0, 1], [1, 0.9])
                   })`,
                 }}
               >

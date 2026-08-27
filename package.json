@@ -9,7 +9,8 @@
     "render": "remotion render",
     "compositions": "remotion compositions",
     "typecheck": "tsc --noEmit",
-    "upgrade": "remotion upgrade"
+    "upgrade": "remotion upgrade",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\" \"*.{ts,json,md}\""
   },
   "dependencies": {
     "@remotion/cli": "4.0.518",
@@ -24,6 +25,7 @@
   "devDependencies": {
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
+    "prettier": "^3.4.2",
     "typescript": "5.9.3"
   }
 }

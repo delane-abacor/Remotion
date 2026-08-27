@@ -1,5 +1,11 @@
 import React from 'react';
-import {AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+  AbsoluteFill,
+  Easing,
+  interpolate,
+  useCurrentFrame,
+  useVideoConfig,
+} from 'remotion';
 import {BRAND, BRAND_URL} from '../../brand';
 import {AbacorLogo} from '../../components/AbacorLogo';
 import {Scene} from '../../components/ui';
@@ -43,11 +49,7 @@ export const EndCard: React.FC<{durationInFrames: number}> = ({durationInFrames}
             transform: `translateY(${(1 - markIn) * 26 * scale}px)`,
           }}
         >
-          <AbacorLogo
-            size={128 * scale}
-            reveal={reveal}
-            wordmarkReveal={wordmark}
-          />
+          <AbacorLogo size={128 * scale} reveal={reveal} wordmarkReveal={wordmark} />
         </div>
 
         <div

@@ -1,5 +1,11 @@
 import React from 'react';
-import {AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+  AbsoluteFill,
+  Easing,
+  interpolate,
+  useCurrentFrame,
+  useVideoConfig,
+} from 'remotion';
 import {BRAND} from '../../brand';
 import {
   Card,
@@ -71,7 +77,12 @@ export const MeetingScan: React.FC<{durationInFrames: number}> = ({durationInFra
               </div>
             </div>
 
-            <div style={{position: 'relative', padding: `${28 * scale}px ${38 * scale}px ${34 * scale}px`}}>
+            <div
+              style={{
+                position: 'relative',
+                padding: `${28 * scale}px ${38 * scale}px ${34 * scale}px`,
+              }}
+            >
               {/* Recap panel, echoing the product's tinted block */}
               <div
                 style={{
@@ -112,8 +123,8 @@ export const MeetingScan: React.FC<{durationInFrames: number}> = ({durationInFra
                 >
                   Client raised seven distinct issues, including{' '}
                   {hl('a new second clinic opening in October,', 0.24)} potential worker
-                  misclassification risk for 5 of 9 therapists paid as 1099 contractors, and{' '}
-                  {hl('a 401(k) proposal from the PEO.', 0.52)}
+                  misclassification risk for 5 of 9 therapists paid as 1099 contractors,
+                  and {hl('a 401(k) proposal from the PEO.', 0.52)}
                 </div>
               </div>
 
@@ -130,8 +141,14 @@ export const MeetingScan: React.FC<{durationInFrames: number}> = ({durationInFra
               </div>
 
               {[
-                <>Consolidated P&amp;L will not show whether the new location is profitable.</>,
-                <>{hl('Landlord offered the building at $1.4M', 0.78)} — needs a buy vs. lease analysis.</>,
+                <>
+                  Consolidated P&amp;L will not show whether the new location is
+                  profitable.
+                </>,
+                <>
+                  {hl('Landlord offered the building at $1.4M', 0.78)} — needs a buy vs.
+                  lease analysis.
+                </>,
                 <>Advised not to sign the 401(k) paperwork before the next discussion.</>,
               ].map((line, i) => (
                 <div

@@ -51,12 +51,12 @@ rendered - it is the Studio's way of showing you alpha.
 
 These four are the neutral scaffolding, separate from the Abacor promo below.
 
-| id | Size | Length | Background | What it shows |
-|---|---|---|---|---|
-| `TitleCard` | 1920x1080 | 5s | opaque | Spring entrance, staggered elements, optional sound effect |
-| `KineticText` | 1920x1080 | 6s | opaque | Per-word stagger derived from the text prop |
-| `LowerThird` | 1920x1080 | 5s | **transparent** | clip-path wipe reveal, name + role |
-| `OverlayBadge` | 1920x1080 | 4s | **transparent** | Corner badge, positionable via an enum prop |
+| id             | Size      | Length | Background      | What it shows                                              |
+| -------------- | --------- | ------ | --------------- | ---------------------------------------------------------- |
+| `TitleCard`    | 1920x1080 | 5s     | opaque          | Spring entrance, staggered elements, optional sound effect |
+| `KineticText`  | 1920x1080 | 6s     | opaque          | Per-word stagger derived from the text prop                |
+| `LowerThird`   | 1920x1080 | 5s     | **transparent** | clip-path wipe reveal, name + role                         |
+| `OverlayBadge` | 1920x1080 | 4s     | **transparent** | Corner badge, positionable via an enum prop                |
 
 Every one has a full enter **and** a full exit: frame 0 is empty and the final
 rendered frame is empty, so nothing pops on and nothing gets cut off.
@@ -106,7 +106,6 @@ top of `src/components/AbacorLogo.tsx`.
 **Brand colours** were sampled by eye. If you have exact hex values, put them
 in `src/brand.ts` - every scene reads from there.
 
-
 ---
 
 ## Canvas settings (resolution + fps)
@@ -116,8 +115,8 @@ follows - all four compositions are registered with `{...CANVAS}` in
 `src/Root.tsx`.
 
 ```ts
-export const FPS = 30;                                    // -> 60 for 60fps
-export const RESOLUTION = RESOLUTIONS.FHD_1080;           // -> RESOLUTIONS.UHD_4K
+export const FPS = 30; // -> 60 for 60fps
+export const RESOLUTION = RESOLUTIONS.FHD_1080; // -> RESOLUTIONS.UHD_4K
 ```
 
 Presets available: `HD_720`, `FHD_1080`, `QHD_1440`, `UHD_4K`, `SQUARE_1080`,
@@ -196,11 +195,11 @@ export const MyGraphic: React.FC<MyGraphicProps> = ({headline, textColor}) => {
 
 ```tsx
 <Composition
-  id="MyGraphic"                       // this is the id you pass to `render`
+  id="MyGraphic" // this is the id you pass to `render`
   component={MyGraphic}
   durationInFrames={seconds(4)}
-  {...CANVAS}                          // shared width / height / fps
-  schema={myGraphicSchema}             // drives the Studio props panel
+  {...CANVAS} // shared width / height / fps
+  schema={myGraphicSchema} // drives the Studio props panel
   defaultProps={myGraphicDefaultProps} // must satisfy the schema
 />
 ```
@@ -236,7 +235,7 @@ npx remotion render <id> out/<id>.mov --codec=prores \
 
 All four flags are required and they work together:
 
-- `--codec=prores` + `--prores-profile=4444` - a codec that *can* store alpha
+- `--codec=prores` + `--prores-profile=4444` - a codec that _can_ store alpha
   (H.264 cannot, at all)
 - `--pixel-format=yuva444p10le` - the `a` is the alpha channel
 - `--image-format=png` - Remotion screenshots each frame before encoding, and
@@ -273,7 +272,7 @@ npm run typecheck                                  # tsc --noEmit
 that single omission is what preserves the alpha channel.
 
 Add a `backgroundColor` anywhere above your content and the export goes opaque
-*silently* - the ProRes flags will still succeed, you will just get a black
+_silently_ - the ProRes flags will still succeed, you will just get a black
 background. If an overlay exports black, that is the first thing to check.
 
 To verify an export really has alpha:
@@ -294,7 +293,12 @@ npx remotion ffprobe out/OverlayBadge.mov | grep Stream
 import {loadFont} from '@remotion/fonts';
 import {staticFile} from 'remotion';
 
-loadFont({family: 'Inter', url: staticFile('fonts/Inter-400.woff2'), weight: '400', format: 'woff2'});
+loadFont({
+  family: 'Inter',
+  url: staticFile('fonts/Inter-400.woff2'),
+  weight: '400',
+  format: 'woff2',
+});
 ```
 
 Self-hosting means renders are deterministic and need no network - useful on
@@ -319,14 +323,14 @@ subsets you use; each is another file fetched on every render.
 ## Sound effects
 
 `public/` is served statically - reach anything in it with `staticFile()`. Put
-audio inside a `<Sequence>` so its `from` prop controls *when* it fires:
+audio inside a `<Sequence>` so its `from` prop controls _when_ it fires:
 
 ```tsx
 import {Audio, Sequence, staticFile} from 'remotion';
 
 <Sequence from={12} name="Whoosh SFX">
   <Audio src={staticFile('audio/whoosh.wav')} volume={0.6} />
-</Sequence>
+</Sequence>;
 ```
 
 `from={12}` starts the sound at frame 12. There is a live example in
@@ -387,7 +391,7 @@ Use a `headless_shell` / `chrome-headless-shell` binary - a regular Chrome
 binary rejects Remotion's old-headless launch flags.
 
 **An overlay exported with a black background.** A `backgroundColor` somewhere
-in the tree, or a missing `--image-format=png`. See *Transparency* above.
+in the tree, or a missing `--image-format=png`. See _Transparency_ above.
 
 **Text is tiny after switching to 4K.** That component is using raw pixel
 values instead of multiplying by `useScale()`.

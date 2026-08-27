@@ -1,5 +1,11 @@
 import React from 'react';
-import {AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+  AbsoluteFill,
+  Easing,
+  interpolate,
+  useCurrentFrame,
+  useVideoConfig,
+} from 'remotion';
 import {BRAND} from '../../brand';
 import {Card, Scene, StepLabel} from '../../components/ui';
 import {DISPLAY_FAMILY, FONT_FAMILY} from '../../fonts';
@@ -24,7 +30,9 @@ const CHART_HEIGHT = 300;
 const BAR_STAGGER = 6;
 const FIRST_BAR = 16;
 
-export const RevenueGrowth: React.FC<{durationInFrames: number}> = ({durationInFrames}) => {
+export const RevenueGrowth: React.FC<{durationInFrames: number}> = ({
+  durationInFrames,
+}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const scale = useScale();
@@ -95,7 +103,12 @@ export const RevenueGrowth: React.FC<{durationInFrames: number}> = ({durationInF
                   opacity: springEnter({frame, fps, delay: FIRST_BAR + 40, damping: 200}),
                 }}
               >
-                <svg width={19 * scale} height={19 * scale} viewBox="0 0 24 24" fill="none">
+                <svg
+                  width={19 * scale}
+                  height={19 * scale}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
                   <path
                     d="M5 16.5 11 10l3.5 3.5L20 7"
                     stroke={BRAND.green}
@@ -166,7 +179,9 @@ export const RevenueGrowth: React.FC<{durationInFrames: number}> = ({durationInF
                         background: isLast
                           ? `linear-gradient(180deg, ${BRAND.orange} 0%, ${BRAND.orangeDeep} 100%)`
                           : `linear-gradient(180deg, ${BRAND.orange}38 0%, ${BRAND.orange}1F 100%)`,
-                        border: isLast ? 'none' : `${1.5 * scale}px solid ${BRAND.orange}33`,
+                        border: isLast
+                          ? 'none'
+                          : `${1.5 * scale}px solid ${BRAND.orange}33`,
                         borderBottom: 'none',
                       }}
                     />
