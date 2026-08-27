@@ -2,7 +2,7 @@ import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 import {BRAND} from '../../brand';
 import {Scene} from '../../components/ui';
-import {DISPLAY_FAMILY, FONT_FAMILY} from '../../fonts';
+import {FONT_FAMILY} from '../../fonts';
 import {useScale} from '../../lib/layout';
 
 /**
@@ -27,6 +27,17 @@ const LINE_2_END = LINE_2_START + LINE_2.length * SPEED_2;
 
 /** Frames per caret blink once typing has finished. */
 const BLINK = 15;
+
+/**
+ * Both lines are set identically - same face, same size, same weight - so the
+ * pair reads as one typed sentence. Only the colour separates them. Keeping
+ * these as shared constants stops the two lines drifting apart when edited.
+ */
+const TITLE_SIZE = 44;
+const TITLE_WEIGHT = 500;
+const TITLE_TRACKING = 0.5;
+const CARET_HEIGHT = 38;
+const CARET_WIDTH = 4;
 
 /** How much of `text` has been typed by `frame`. */
 const typed = (frame: number, start: number, speed: number, text: string): string =>
@@ -92,7 +103,7 @@ export const Intro: React.FC<{durationInFrames: number}> = ({durationInFrames}) 
   const caretVisible = stillTyping || Math.floor((frame - LINE_2_END) / BLINK) % 2 === 0;
 
   // Line 2 settles up very slightly as it is written.
-  const settle = interpolate(frame, [LINE_2_START, LINE_2_END], [7, 0], {
+  const settle = interpolate(frame, [LINE_2_START, LINE_2_END], [4, 0], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
@@ -111,15 +122,15 @@ export const Intro: React.FC<{durationInFrames: number}> = ({durationInFrames}) 
           visible={line1}
           showCaret={!caretOnLine2}
           caretVisible={caretVisible}
-          caretWidth={4 * scale}
-          caretHeight={38 * scale}
+          caretWidth={CARET_WIDTH * scale}
+          caretHeight={CARET_HEIGHT * scale}
           style={{
             fontFamily: FONT_FAMILY,
-            fontWeight: 500,
-            fontSize: 44 * scale,
-            letterSpacing: 0.5 * scale,
+            fontWeight: TITLE_WEIGHT,
+            fontSize: TITLE_SIZE * scale,
+            letterSpacing: TITLE_TRACKING * scale,
             color: BRAND.inkSoft,
-            marginBottom: 30 * scale,
+            marginBottom: 18 * scale,
           }}
         />
 
@@ -128,14 +139,13 @@ export const Intro: React.FC<{durationInFrames: number}> = ({durationInFrames}) 
           visible={line2}
           showCaret={caretOnLine2}
           caretVisible={caretVisible}
-          caretWidth={6 * scale}
-          caretHeight={72 * scale}
+          caretWidth={CARET_WIDTH * scale}
+          caretHeight={CARET_HEIGHT * scale}
           style={{
-            fontFamily: DISPLAY_FAMILY,
-            fontWeight: 700,
-            fontSize: 86 * scale,
-            lineHeight: 1.15,
-            letterSpacing: -0.015 * 86 * scale,
+            fontFamily: FONT_FAMILY,
+            fontWeight: TITLE_WEIGHT,
+            fontSize: TITLE_SIZE * scale,
+            letterSpacing: TITLE_TRACKING * scale,
             color: BRAND.navy,
             transform: `translateY(${settle * scale}px)`,
           }}
