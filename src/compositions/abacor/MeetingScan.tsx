@@ -29,7 +29,7 @@ export const MeetingScan: React.FC<{durationInFrames: number}> = ({durationInFra
   const cardIn = springEnter({frame, fps, delay: 2, damping: 200, stiffness: 80});
   const labelIn = springEnter({frame, fps, damping: 200, stiffness: 90});
 
-  const scan = interpolate(frame, [10, 64], [0, 1], {
+  const scan = interpolate(frame, [8, 48], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
     easing: Easing.inOut(Easing.quad),
@@ -187,7 +187,7 @@ export const MeetingScan: React.FC<{durationInFrames: number}> = ({durationInFra
               scale={scale}
               frame={frame}
               fps={fps}
-              delay={70}
+              delay={52}
               style={{right: 0, top: -28 * scale}}
             />
           </div>

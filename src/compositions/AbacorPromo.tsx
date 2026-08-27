@@ -1,49 +1,80 @@
 import React from 'react';
 import {AbsoluteFill, Sequence} from 'remotion';
 import {z} from 'zod';
-import {BRAND} from '../brand';
-import {AbacorLogo} from '../components/AbacorLogo';
+import {BRAND, BRAND_URL} from '../brand';
 import {EmailScan} from './abacor/EmailScan';
 import {EndCard} from './abacor/EndCard';
 import {MeetingScan} from './abacor/MeetingScan';
 import {Opportunities} from './abacor/Opportunities';
 import {RevenueGrowth} from './abacor/RevenueGrowth';
-import {useScale} from '../lib/layout';
 import {seconds} from '../video';
 
 /**
  * ABACOR PROMO
  * ------------
  * Scan an email thread -> scan a meeting note -> populate the opportunity
- * pipeline -> show revenue growth -> end on the logo and URL.
+ * pipeline -> show revenue growth -> end on the URL.
  *
- * Scene lengths are declared once in SCENES below. Change a duration here and
- * everything after it shifts automatically; the composition's total length is
- * derived from the same list in Root.tsx via promoDuration().
+ * Scene lengths are declared once in SCENES below. Change a duration there and
+ * everything after it shifts; the composition's total length is derived from
+ * the same list, so Root.tsx never needs editing to match.
  *
- * No people appear anywhere - the story is told entirely through the product
- * surface.
+ * No people and no logo appear anywhere - the story is told entirely through
+ * the product surface, and it signs off on the address alone.
  */
 
 export const abacorPromoSchema = z.object({
-  /** Small persistent logo in the corner during the body scenes. */
-  showCornerLogo: z.boolean(),
+  /** Shown on the final scene. Editable live in the Studio sidebar. */
+  endCardUrl: z.string(),
 });
 
 export type AbacorPromoProps = z.infer<typeof abacorPromoSchema>;
 
 export const abacorPromoDefaultProps: AbacorPromoProps = {
-  showCornerLogo: true,
+  endCardUrl: BRAND_URL,
 };
 
-/** Scene running order and lengths, in seconds. */
-export const SCENES = [
-  {id: 'email', seconds: 4.5, component: EmailScan},
-  {id: 'meeting', seconds: 4.5, component: MeetingScan},
-  {id: 'opportunities', seconds: 4.5, component: Opportunities},
-  {id: 'revenue', seconds: 4.2, component: RevenueGrowth},
-  {id: 'end', seconds: 3.9, component: EndCard},
-] as const;
+/**
+ * Scene running order and lengths, in seconds. Each entry renders itself so a
+ * scene can take its own props without every other scene having to accept them.
+ */
+const SCENES = [
+  {
+    id: 'email',
+    seconds: 3.6,
+    render: (durationInFrames: number) => (
+      <EmailScan durationInFrames={durationInFrames} />
+    ),
+  },
+  {
+    id: 'meeting',
+    seconds: 3.6,
+    render: (durationInFrames: number) => (
+      <MeetingScan durationInFrames={durationInFrames} />
+    ),
+  },
+  {
+    id: 'opportunities',
+    seconds: 3.5,
+    render: (durationInFrames: number) => (
+      <Opportunities durationInFrames={durationInFrames} />
+    ),
+  },
+  {
+    id: 'revenue',
+    seconds: 3.2,
+    render: (durationInFrames: number) => (
+      <RevenueGrowth durationInFrames={durationInFrames} />
+    ),
+  },
+  {
+    id: 'end',
+    seconds: 2.7,
+    render: (durationInFrames: number, props: AbacorPromoProps) => (
+      <EndCard durationInFrames={durationInFrames} url={props.endCardUrl} />
+    ),
+  },
+];
 
 /**
  * Frames by which each scene overlaps the one before it.
@@ -64,15 +95,10 @@ const sceneStart = (index: number): number =>
 export const promoDuration = (): number =>
   sceneStart(SCENES.length - 1) + seconds(SCENES[SCENES.length - 1]!.seconds);
 
-/** Frame at which the final scene begins - the corner logo hides from here. */
-const endCardStart = (): number => sceneStart(SCENES.length - 1);
-
-export const AbacorPromo: React.FC<AbacorPromoProps> = ({showCornerLogo}) => {
-  const scale = useScale();
-
+export const AbacorPromo: React.FC<AbacorPromoProps> = (props) => {
   return (
     <AbsoluteFill style={{background: BRAND.page}}>
-      {/* Very soft warm wash so the flat background is not dead white. */}
+      {/* Very soft warm wash so the flat background is not dead flat. */}
       <AbsoluteFill
         style={{
           background: `radial-gradient(120% 80% at 50% 0%, ${BRAND.orange}0D 0%, rgba(255,255,255,0) 60%)`,
@@ -81,7 +107,6 @@ export const AbacorPromo: React.FC<AbacorPromoProps> = ({showCornerLogo}) => {
 
       {SCENES.map((scene, index) => {
         const durationInFrames = seconds(scene.seconds);
-        const SceneComponent = scene.component;
 
         return (
           <Sequence
@@ -90,25 +115,10 @@ export const AbacorPromo: React.FC<AbacorPromoProps> = ({showCornerLogo}) => {
             durationInFrames={durationInFrames}
             name={scene.id}
           >
-            <SceneComponent durationInFrames={durationInFrames} />
+            {scene.render(durationInFrames, props)}
           </Sequence>
         );
       })}
-
-      {/* Persistent corner mark, dropped for the end card so it does not double up. */}
-      {showCornerLogo ? (
-        <Sequence durationInFrames={endCardStart()} name="Corner logo">
-          <AbsoluteFill
-            style={{
-              padding: 54 * scale,
-              alignItems: 'flex-start',
-              justifyContent: 'flex-start',
-            }}
-          >
-            <AbacorLogo size={38 * scale} />
-          </AbsoluteFill>
-        </Sequence>
-      ) : null}
     </AbsoluteFill>
   );
 };
