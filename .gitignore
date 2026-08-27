@@ -1,0 +1,17 @@
+node_modules/
+.env
+.env.local
+
+# Rendered output - keep the folder, ignore the renders
+out/*
+!out/.gitkeep
+
+# Remotion caches
+.remotion/
+build/
+dist/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.log
