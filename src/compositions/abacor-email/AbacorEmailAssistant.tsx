@@ -34,6 +34,8 @@ import {Inbox} from './scenes/Inbox';
 export const abacorEmailSchema = z.object({
   /** Closing headline. Editable live in the Studio sidebar. */
   headline: z.string(),
+  /** The plain-language line under the headline. */
+  subhead: z.string(),
   /** Lead-in before the domain on the final scene. */
   endCardLead: z.string(),
   /** Destination, set in the accent colour. */
@@ -44,6 +46,7 @@ export type AbacorEmailProps = z.infer<typeof abacorEmailSchema>;
 
 export const abacorEmailDefaultProps: AbacorEmailProps = {
   headline: 'Your inbox, already answered.',
+  subhead: 'Drafting your emails in your inbox, in your tone and voice.',
   endCardLead: 'Try it today at',
   endCardUrl: BRAND_URL,
 };
@@ -67,11 +70,12 @@ const SCENES = [
   },
   {
     id: 'cta',
-    seconds: 2.2,
+    seconds: 2.8,
     render: (durationInFrames: number, props: AbacorEmailProps) => (
       <CTA
         durationInFrames={durationInFrames}
         headline={props.headline}
+        subhead={props.subhead}
         lead={props.endCardLead}
         url={props.endCardUrl}
       />

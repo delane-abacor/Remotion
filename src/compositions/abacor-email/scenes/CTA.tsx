@@ -25,9 +25,10 @@ import {useScale} from '../../../lib/layout';
 export const CTA: React.FC<{
   durationInFrames: number;
   headline: string;
+  subhead: string;
   lead: string;
   url: string;
-}> = ({durationInFrames, headline, lead, url}) => {
+}> = ({durationInFrames, headline, subhead, lead, url}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const scale = useScale();
@@ -39,7 +40,8 @@ export const CTA: React.FC<{
   });
 
   const headlineIn = springEnter({frame, fps, delay: 6, damping: 20, stiffness: 120});
-  const ctaIn = springEnter({frame, fps, delay: 14, damping: 20, stiffness: 120});
+  const subheadIn = springEnter({frame, fps, delay: 13, damping: 20, stiffness: 120});
+  const ctaIn = springEnter({frame, fps, delay: 21, damping: 20, stiffness: 120});
 
   const rise = (progress: number) => ({
     opacity: progress,
@@ -73,12 +75,30 @@ export const CTA: React.FC<{
             fontSize: 58 * scale,
             letterSpacing: TITLE.tracking * scale,
             color: TITLE.color,
-            marginBottom: 26 * scale,
+            marginBottom: 18 * scale,
             textAlign: 'center',
             ...rise(headlineIn),
           }}
         >
           {headline}
+        </div>
+
+        {/* What the product does, said plainly, under the headline. */}
+        <div
+          style={{
+            fontFamily: DISPLAY_FAMILY,
+            fontWeight: 500,
+            fontSize: 32 * scale,
+            lineHeight: 1.4,
+            letterSpacing: TITLE.tracking * scale,
+            color: BRAND.inkSoft,
+            marginBottom: 40 * scale,
+            textAlign: 'center',
+            maxWidth: 1100 * scale,
+            ...rise(subheadIn),
+          }}
+        >
+          {subhead}
         </div>
 
         <div
