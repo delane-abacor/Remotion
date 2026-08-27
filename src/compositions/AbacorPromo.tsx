@@ -14,24 +14,28 @@ import {seconds} from '../video';
  * ABACOR PROMO
  * ------------
  * A typed title card -> scan an email thread -> scan a meeting note ->
- * populate the opportunity pipeline -> show revenue growth -> end on the URL.
+ * populate the opportunity pipeline -> show revenue growth -> end on the call
+ * to action.
  *
  * Scene lengths are declared once in SCENES below. Change a duration there and
  * everything after it shifts; the composition's total length is derived from
  * the same list, so Root.tsx never needs editing to match.
  *
  * No people and no logo appear anywhere - the story is told entirely through
- * the product surface, and it signs off on the address alone.
+ * the product surface.
  */
 
 export const abacorPromoSchema = z.object({
-  /** Shown on the final scene. Editable live in the Studio sidebar. */
+  /** Lead-in on the final scene. Editable live in the Studio sidebar. */
+  endCardLead: z.string(),
+  /** Destination on the final scene, set in the accent colour. */
   endCardUrl: z.string(),
 });
 
 export type AbacorPromoProps = z.infer<typeof abacorPromoSchema>;
 
 export const abacorPromoDefaultProps: AbacorPromoProps = {
+  endCardLead: 'Try it today at',
   endCardUrl: BRAND_URL,
 };
 
@@ -77,7 +81,11 @@ const SCENES = [
     id: 'end',
     seconds: 2.2,
     render: (durationInFrames: number, props: AbacorPromoProps) => (
-      <EndCard durationInFrames={durationInFrames} url={props.endCardUrl} />
+      <EndCard
+        durationInFrames={durationInFrames}
+        lead={props.endCardLead}
+        url={props.endCardUrl}
+      />
     ),
   },
 ];

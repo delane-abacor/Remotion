@@ -13,15 +13,20 @@ import {springEnter} from '../../lib/animation';
 import {useScale} from '../../lib/layout';
 
 /**
- * FINAL SCENE - the URL, on its own.
+ * FINAL SCENE - the call to action.
  *
- * A short orange rule draws out first, then the address rises into place and
- * holds through the last frame so an editor has something to cut on.
+ * A short orange rule draws out, then the line rises into place and holds
+ * through the last frame so an editor has something to cut on. The domain
+ * takes the accent colour so the eye lands on where to go.
+ *
+ * Set in the same face, weight and tracking as the typed title card (see
+ * TITLE in src/brand.ts) - only the size differs.
  */
-export const EndCard: React.FC<{durationInFrames: number; url: string}> = ({
-  durationInFrames,
-  url,
-}) => {
+export const EndCard: React.FC<{
+  durationInFrames: number;
+  lead: string;
+  url: string;
+}> = ({durationInFrames, lead, url}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const scale = useScale();
@@ -31,7 +36,13 @@ export const EndCard: React.FC<{durationInFrames: number; url: string}> = ({
     extrapolateRight: 'clamp',
     easing: Easing.out(Easing.cubic),
   });
-  const urlIn = springEnter({frame, fps, delay: 8, damping: 200, stiffness: 95});
+  const leadIn = springEnter({frame, fps, delay: 8, damping: 200, stiffness: 95});
+  const urlIn = springEnter({frame, fps, delay: 14, damping: 200, stiffness: 95});
+
+  const rise = (progress: number) => ({
+    opacity: progress,
+    transform: `translateY(${(1 - progress) * 18 * scale}px)`,
+  });
 
   return (
     <Scene durationInFrames={durationInFrames} hold>
@@ -55,19 +66,19 @@ export const EndCard: React.FC<{durationInFrames: number; url: string}> = ({
 
         <div
           style={{
-            // Same face, weight and tracking as the typed title card, so the
-            // piece opens and closes in one voice. Only the size differs.
+            display: 'flex',
+            alignItems: 'baseline',
+            gap: 0.28 * TITLE.size * scale,
             fontFamily: FONT_FAMILY,
             fontWeight: TITLE.weight,
-            fontSize: 96 * scale,
-            lineHeight: 1,
+            fontSize: 84 * scale,
+            lineHeight: 1.1,
             letterSpacing: TITLE.tracking * scale,
-            color: BRAND.navy,
-            opacity: urlIn,
-            transform: `translateY(${(1 - urlIn) * 22 * scale}px)`,
+            whiteSpace: 'pre',
           }}
         >
-          {url}
+          <span style={{color: TITLE.color, ...rise(leadIn)}}>{lead}</span>
+          <span style={{color: BRAND.orange, ...rise(urlIn)}}>{url}</span>
         </div>
       </AbsoluteFill>
     </Scene>
