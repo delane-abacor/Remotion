@@ -1,33 +1,50 @@
-import {loadFont} from '@remotion/google-fonts/Inter';
+import {loadFont} from '@remotion/fonts';
+import {staticFile} from 'remotion';
 
 /**
- * GOOGLE FONT LOADING
- * -------------------
- * @remotion/google-fonts downloads the font and registers an @font-face for
- * you. Because this runs at module scope it is loaded before the first frame
- * renders, so text never flashes in an fallback face mid-render.
+ * FONT LOADING
+ * ------------
+ * The promo self-hosts its fonts from public/fonts/ so renders are
+ * deterministic and work with no network access (CI, offline, locked-down
+ * machines). The .woff2 files are the latin subsets of Inter and Poppins.
  *
- * To use a different family, change BOTH the import path and nothing else:
- *   import {loadFont} from '@remotion/google-fonts/Roboto';
- *   import {loadFont} from '@remotion/google-fonts/DMSans';
- * The subpath is the font name with spaces removed.
+ * PREFER GOOGLE FONTS INSTEAD? @remotion/google-fonts fetches at render time
+ * and needs no local files:
  *
- * Only request the weights and subsets you actually use - every extra one is
- * another file to download on every render.
+ *   import {loadFont} from '@remotion/google-fonts/Inter';
+ *   const inter = loadFont('normal', {weights: ['400', '700'], subsets: ['latin']});
+ *   export const FONT_FAMILY = inter.fontFamily;
  *
- * Prefer a local font? Drop the .woff2 into public/fonts/ and use
- * @remotion/fonts' loadFont({family, url: staticFile('fonts/My.woff2')}).
+ * To self-host a different family, drop its .woff2 into public/fonts/ and add
+ * a line below. Weight must match the file, or the browser will synthesise a
+ * fake bold and the text will look slightly wrong.
  */
-const inter = loadFont('normal', {
-  weights: ['400', '500', '700'],
-  subsets: ['latin'],
-});
 
-/** Pass this to a `fontFamily` style prop. */
-export const FONT_FAMILY = inter.fontFamily;
+const face = (family: string, file: string, weight: string) =>
+  loadFont({
+    family,
+    url: staticFile(`fonts/${file}`),
+    weight,
+    style: 'normal',
+    format: 'woff2',
+  });
 
-/**
- * Resolves once the font files are actually parsed. Await it inside a
- * `delayRender()` block if you ever measure text width before drawing.
- */
-export const waitUntilFontsLoaded = inter.waitUntilDone;
+/** Kick off every load at module scope, before the first frame is drawn. */
+const loading: Promise<unknown>[] = [
+  face('Inter', 'Inter-400.woff2', '400'),
+  face('Inter', 'Inter-500.woff2', '500'),
+  face('Inter', 'Inter-600.woff2', '600'),
+  face('Inter', 'Inter-700.woff2', '700'),
+  face('Poppins', 'Poppins-500.woff2', '500'),
+  face('Poppins', 'Poppins-600.woff2', '600'),
+  face('Poppins', 'Poppins-700.woff2', '700'),
+];
+
+/** Body / UI face. */
+export const FONT_FAMILY = 'Inter, system-ui, sans-serif';
+
+/** Display face for headlines and the wordmark. */
+export const DISPLAY_FAMILY = 'Poppins, Inter, system-ui, sans-serif';
+
+/** Await if you ever need to measure text before drawing it. */
+export const waitUntilFontsLoaded = () => Promise.all(loading);

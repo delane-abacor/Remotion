@@ -49,6 +49,8 @@ rendered - it is the Studio's way of showing you alpha.
 
 ## The starter graphics
 
+These four are the neutral scaffolding, separate from the Abacor promo below.
+
 | id | Size | Length | Background | What it shows |
 |---|---|---|---|---|
 | `TitleCard` | 1920x1080 | 5s | opaque | Spring entrance, staggered elements, optional sound effect |
@@ -58,6 +60,52 @@ rendered - it is the Studio's way of showing you alpha.
 
 Every one has a full enter **and** a full exit: frame 0 is empty and the final
 rendered frame is empty, so nothing pops on and nothing gets cut off.
+
+---
+
+## The Abacor promo
+
+`AbacorPromo` (1920x1080, ~30s) is the product film: an email thread is
+scanned, then a meeting note, the detected opportunities populate a pipeline,
+revenue growth follows, and it ends on the logo and URL. No people appear in
+it - the story is told entirely through the product surface.
+
+```
+src/brand.ts                        colours, URL, font choices - edit here first
+src/components/AbacorLogo.tsx       the mark + wordmark
+src/components/ui.tsx               Card, ScanBeam, Highlight, DetectChip, Scene
+src/compositions/AbacorPromo.tsx    scene order and lengths
+src/compositions/abacor/            one file per scene
+```
+
+**Scene order and timing** live in one array in `AbacorPromo.tsx`:
+
+```ts
+export const SCENES = [
+  {id: 'email', seconds: 7, component: EmailScan},
+  {id: 'meeting', seconds: 7, component: MeetingScan},
+  ...
+];
+```
+
+Change a `seconds` value and everything after it shifts; the composition's
+total length is derived from the same list. Scenes overlap by `OVERLAP` frames
+so they cross-dissolve instead of blinking through an empty page.
+
+**Copy** is inline in each scene file - the email messages in `EmailScan.tsx`,
+the recap text in `MeetingScan.tsx`, the line items and amounts in
+`Opportunities.tsx`, the bars and revenue figures in `RevenueGrowth.tsx`. The
+`$41,500` pipeline total is computed from the line items, so editing an amount
+keeps the header in sync automatically.
+
+**The logo mark is a reconstruction**, drawn as SVG from the supplied image,
+and the wordmark is set in Poppins rather than the real lettering. To use the
+official asset, drop it into `public/images/` and follow the swap noted at the
+top of `src/components/AbacorLogo.tsx`.
+
+**Brand colours** were sampled by eye. If you have exact hex values, put them
+in `src/brand.ts` - every scene reads from there.
+
 
 ---
 
@@ -239,32 +287,34 @@ npx remotion ffprobe out/OverlayBadge.mov | grep Stream
 
 ## Fonts
 
-`src/fonts.ts` loads Inter through `@remotion/google-fonts`:
-
-```ts
-import {loadFont} from '@remotion/google-fonts/Inter';
-
-const inter = loadFont('normal', {weights: ['400', '500', '700'], subsets: ['latin']});
-export const FONT_FAMILY = inter.fontFamily;
-```
-
-Swap the family by changing only the import subpath - `@remotion/google-fonts/Roboto`,
-`@remotion/google-fonts/DMSans` (the font name with spaces removed). Request
-only the weights and subsets you use; each one is another file fetched on every
-render.
-
-This fetches from `fonts.gstatic.com` at render time, so renders need network
-access. To render fully offline, put a `.woff2` in `public/fonts/` and use
-`@remotion/fonts` instead:
+`src/fonts.ts` self-hosts Inter and Poppins from `public/fonts/` using
+`@remotion/fonts`:
 
 ```ts
 import {loadFont} from '@remotion/fonts';
 import {staticFile} from 'remotion';
 
-loadFont({family: 'MyFont', url: staticFile('fonts/MyFont.woff2')});
+loadFont({family: 'Inter', url: staticFile('fonts/Inter-400.woff2'), weight: '400', format: 'woff2'});
 ```
 
----
+Self-hosting means renders are deterministic and need no network - useful on
+CI, offline, or behind a restrictive proxy. Drop another `.woff2` into
+`public/fonts/` and add a line to load it. Make the declared `weight` match the
+file, or the browser synthesises a fake bold.
+
+**Google Fonts instead**, if you would rather not manage files -
+`@remotion/google-fonts` fetches at render time:
+
+```ts
+import {loadFont} from '@remotion/google-fonts/Inter';
+
+const inter = loadFont('normal', {weights: ['400', '700'], subsets: ['latin']});
+export const FONT_FAMILY = inter.fontFamily;
+```
+
+Swap the family by changing only the import subpath (`.../Roboto`,
+`.../DMSans` - the font name with spaces removed). Request only the weights and
+subsets you use; each is another file fetched on every render.
 
 ## Sound effects
 

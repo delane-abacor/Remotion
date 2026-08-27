@@ -1,6 +1,12 @@
 import React from 'react';
 import {Composition, Folder} from 'remotion';
 import {
+  AbacorPromo,
+  abacorPromoDefaultProps,
+  abacorPromoSchema,
+  promoDuration,
+} from './compositions/AbacorPromo';
+import {
   KineticText,
   kineticTextDefaultProps,
   kineticTextSchema,
@@ -41,6 +47,16 @@ import {CANVAS, seconds} from './video';
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      {/* The Abacor product promo. */}
+      <Composition
+        id="AbacorPromo"
+        component={AbacorPromo}
+        durationInFrames={promoDuration()}
+        {...CANVAS}
+        schema={abacorPromoSchema}
+        defaultProps={abacorPromoDefaultProps}
+      />
+
       {/* Full-frame graphics - rendered on an opaque background. */}
       <Folder name="Full-Frame">
         <Composition
