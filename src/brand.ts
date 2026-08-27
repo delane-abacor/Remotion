@@ -13,19 +13,19 @@ export const BRAND = {
   orangeDeep: '#E25700',
   /** Tinted panel background, as used behind the product's "Recap" block. */
   orangeTint: '#FDF1EA',
-  orangeTintEdge: '#F7D9C4',
+  orangeTintEdge: '#F2C4A4',
 
   /** Dark ink from the logo wordmark. */
-  navy: '#0F2A33',
-  ink: '#16333F',
-  inkSoft: '#4A6470',
-  muted: '#8296A0',
+  navy: '#0B2029',
+  ink: '#122C37',
+  inkSoft: '#3A5462',
+  muted: '#6B808B',
 
   /** Surfaces. */
-  page: '#F4F7F8',
+  page: '#DCE6EB',
   card: '#FFFFFF',
-  line: '#E3EAED',
-  lineSoft: '#EFF3F5',
+  line: '#CBD8DF',
+  lineSoft: '#E4EBEF',
 
   /** Semantic. */
   green: '#0E9F6E',

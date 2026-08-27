@@ -4,24 +4,69 @@ import {BRAND, FONTS} from '../brand';
 /**
  * ABACOR LOGO
  * -----------
- * The mark here is a geometric RECONSTRUCTION drawn from the supplied logo
- * image, and the wordmark is set in Poppins - close to, but not identical to,
- * the real lettering.
+ * The mark is drawn as SVG to match the supplied artwork: a rounded orange
+ * square with a single continuous white cut-out running through it - a narrow
+ * slot down from the top edge, flaring into a hexagon with points at left and
+ * right, narrowing again, then splaying out into two legs at the bottom.
  *
- * TO USE THE REAL ASSET: drop the official file into public/images/ and swap
- * the <Mark /> body (and the wordmark <span />) for:
+ * It is still a REDRAW, not the original vector. For pixel-exact output, add
+ * the official file to public/images/ and replace <AbacorMark /> with:
  *
- *   <Img src={staticFile('images/abacor-logo.svg')} style={{height: size}} />
+ *   <Img src={staticFile('images/abacor-mark.svg')} style={{height: size}} />
  *
- * ...importing Img and staticFile from 'remotion'. Everything else - the
- * entrance animation, sizing, layout - keeps working unchanged.
+ * ...importing Img and staticFile from 'remotion'. The `reveal` animation is
+ * the only thing that depends on the inline path; everything else - sizing,
+ * layout, the wordmark - keeps working unchanged.
+ *
+ * The wordmark is set in Poppins, which is close to but not identical to the
+ * real lettering.
  */
+
+/** Half-width of the narrow vertical slot, in the 0-100 viewBox. */
+const SLOT = 6.5;
+/** Y positions where the cut-out changes shape. */
+const HEX_TOP = 20;
+const HEX_MID = 41;
+const HEX_BOTTOM = 62;
+const LEG_TOP = 71;
+/** How far the hexagon's left/right points reach in from the edge. */
+const HEX_REACH = 27;
+/** Half-width of the hexagon's flat top and bottom edges. */
+const HEX_EDGE = 12;
+/** Half-width of the splayed opening at the bottom edge. */
+const LEG_SPREAD = 22;
+
+/**
+ * One continuous polygon, traced clockwise from the top slot. Drawn slightly
+ * past the top and bottom edges so the cut meets the rounded rect cleanly.
+ */
+const CUTOUT =
+  [
+    [50 - SLOT, -3],
+    [50 + SLOT, -3],
+    [50 + SLOT, HEX_TOP],
+    [50 + HEX_EDGE, HEX_TOP],
+    [100 - HEX_REACH, HEX_MID],
+    [50 + HEX_EDGE, HEX_BOTTOM],
+    [50 + SLOT, HEX_BOTTOM],
+    [50 + SLOT, LEG_TOP],
+    [50 + LEG_SPREAD, 103],
+    [50 - LEG_SPREAD, 103],
+    [50 - SLOT, LEG_TOP],
+    [50 - SLOT, HEX_BOTTOM],
+    [50 - HEX_EDGE, HEX_BOTTOM],
+    [HEX_REACH, HEX_MID],
+    [50 - HEX_EDGE, HEX_TOP],
+    [50 - SLOT, HEX_TOP],
+  ]
+    .map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x} ${y}`)
+    .join(' ') + ' Z';
 
 type MarkProps = {
   /** Height of the mark in px. */
   size: number;
   color?: string;
-  /** 0 -> 1. Scales the white cut-outs open, so the mark "assembles". */
+  /** 0 -> 1. Opens the cut-out from nothing, so the mark "assembles". */
   reveal?: number;
 };
 
@@ -30,7 +75,6 @@ export const AbacorMark: React.FC<MarkProps> = ({
   color = BRAND.orange,
   reveal = 1,
 }) => {
-  // The notches and hexagon open up from nothing as `reveal` goes 0 -> 1.
   const cut = Math.max(reveal, 0.001);
 
   return (
@@ -46,13 +90,11 @@ export const AbacorMark: React.FC<MarkProps> = ({
         <mask id="abacor-mark-cutout">
           {/* White = keep, black = cut away. */}
           <rect x="0" y="0" width="100" height="100" fill="white" />
-          <g transform={`translate(50 50) scale(${cut}) translate(-50 -50)`}>
-            {/* Centre hexagon */}
-            <path d="M50 22 L74 36 L74 64 L50 78 L26 64 L26 36 Z" fill="black" />
-            {/* Vertical channels to the top and bottom edges */}
-            <rect x="41" y="-4" width="18" height="34" fill="black" />
-            <rect x="41" y="70" width="18" height="34" fill="black" />
-          </g>
+          <path
+            d={CUTOUT}
+            fill="black"
+            transform={`translate(50 50) scale(${cut}) translate(-50 -50)`}
+          />
         </mask>
       </defs>
 
@@ -61,7 +103,7 @@ export const AbacorMark: React.FC<MarkProps> = ({
         y="0"
         width="100"
         height="100"
-        rx="15"
+        rx="13"
         fill={color}
         mask="url(#abacor-mark-cutout)"
       />

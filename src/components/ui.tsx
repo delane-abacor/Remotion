@@ -99,7 +99,9 @@ export const Card: React.FC<{
       background: BRAND.card,
       borderRadius: 22 * scale,
       border: `${1.5 * scale}px solid ${BRAND.line}`,
-      boxShadow: `0 ${28 * scale}px ${70 * scale}px rgba(15, 42, 51, 0.10)`,
+      boxShadow: `0 ${2 * scale}px ${4 * scale}px rgba(11, 32, 41, 0.06), 0 ${
+        30 * scale
+      }px ${64 * scale}px rgba(11, 32, 41, 0.20)`,
       padding: padding * scale,
       opacity: progress,
       transform: `translateY(${(1 - progress) * 34 * scale}px) scale(${interpolate(

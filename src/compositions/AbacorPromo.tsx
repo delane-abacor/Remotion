@@ -38,10 +38,10 @@ export const abacorPromoDefaultProps: AbacorPromoProps = {
 
 /** Scene running order and lengths, in seconds. */
 export const SCENES = [
-  {id: 'email', seconds: 7, component: EmailScan},
-  {id: 'meeting', seconds: 7, component: MeetingScan},
-  {id: 'opportunities', seconds: 6.5, component: Opportunities},
-  {id: 'revenue', seconds: 6, component: RevenueGrowth},
+  {id: 'email', seconds: 6, component: EmailScan},
+  {id: 'meeting', seconds: 6, component: MeetingScan},
+  {id: 'opportunities', seconds: 6, component: Opportunities},
+  {id: 'revenue', seconds: 5.5, component: RevenueGrowth},
   {id: 'end', seconds: 5, component: EndCard},
 ] as const;
 
