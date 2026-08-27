@@ -35,6 +35,17 @@ export const BRAND = {
 
 export const BRAND_URL = 'abacor.com';
 
+/**
+ * Shared treatment for the typed title card and the end card, so the piece
+ * opens and closes in the same voice. Size is per-scene; face, weight and
+ * tracking are not.
+ */
+export const TITLE = {
+  size: 44,
+  weight: 500,
+  tracking: 0.5,
+} as const;
+
 /** Font families registered in src/fonts.ts. */
 export const FONTS = {
   display: 'Poppins',

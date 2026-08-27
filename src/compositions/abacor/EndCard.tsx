@@ -6,9 +6,9 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion';
-import {BRAND} from '../../brand';
+import {BRAND, TITLE} from '../../brand';
 import {Scene} from '../../components/ui';
-import {DISPLAY_FAMILY} from '../../fonts';
+import {FONT_FAMILY} from '../../fonts';
 import {springEnter} from '../../lib/animation';
 import {useScale} from '../../lib/layout';
 
@@ -55,11 +55,13 @@ export const EndCard: React.FC<{durationInFrames: number; url: string}> = ({
 
         <div
           style={{
-            fontFamily: DISPLAY_FAMILY,
-            fontWeight: 700,
-            fontSize: 104 * scale,
+            // Same face, weight and tracking as the typed title card, so the
+            // piece opens and closes in one voice. Only the size differs.
+            fontFamily: FONT_FAMILY,
+            fontWeight: TITLE.weight,
+            fontSize: 96 * scale,
             lineHeight: 1,
-            letterSpacing: -0.01 * 104 * scale,
+            letterSpacing: TITLE.tracking * scale,
             color: BRAND.navy,
             opacity: urlIn,
             transform: `translateY(${(1 - urlIn) * 22 * scale}px)`,

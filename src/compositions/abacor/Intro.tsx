@@ -1,6 +1,13 @@
 import React from 'react';
-import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
-import {BRAND} from '../../brand';
+import {
+  AbsoluteFill,
+  Audio,
+  Sequence,
+  interpolate,
+  staticFile,
+  useCurrentFrame,
+} from 'remotion';
+import {BRAND, TITLE} from '../../brand';
 import {Scene} from '../../components/ui';
 import {FONT_FAMILY} from '../../fonts';
 import {useScale} from '../../lib/layout';
@@ -29,15 +36,23 @@ const LINE_2_END = LINE_2_START + LINE_2.length * SPEED_2;
 const BLINK = 15;
 
 /**
- * Both lines are set identically - same face, same size, same weight - so the
- * pair reads as one typed sentence. Only the colour separates them. Keeping
- * these as shared constants stops the two lines drifting apart when edited.
+ * Both lines are set identically - same face, size and weight - so the pair
+ * reads as one typed sentence. Only the colour separates them. The values live
+ * in src/brand.ts because the end card uses the same treatment.
  */
-const TITLE_SIZE = 44;
-const TITLE_WEIGHT = 500;
-const TITLE_TRACKING = 0.5;
 const CARET_HEIGHT = 38;
 const CARET_WIDTH = 4;
+
+/** Keystroke sound. One per character, at the frame that character appears. */
+const KEY_SOUND = 'audio/keypress.wav';
+const KEY_VOLUME = 0.7;
+
+/**
+ * Frames at which each character lands. `from` on a <Sequence> must be a whole
+ * frame, and SPEED_2 is fractional, so these are rounded.
+ */
+const keystrokeFrames = (start: number, speed: number, length: number): number[] =>
+  Array.from({length}, (_, i) => Math.round(start + i * speed));
 
 /** How much of `text` has been typed by `frame`. */
 const typed = (frame: number, start: number, speed: number, text: string): string =>
@@ -108,8 +123,23 @@ export const Intro: React.FC<{durationInFrames: number}> = ({durationInFrames}) 
     extrapolateRight: 'clamp',
   });
 
+  const keystrokes = [
+    ...keystrokeFrames(LINE_1_START, SPEED_1, LINE_1.length),
+    ...keystrokeFrames(LINE_2_START, SPEED_2, LINE_2.length),
+  ];
+
   return (
     <Scene durationInFrames={durationInFrames}>
+      {keystrokes.map((at, i) => (
+        <Sequence key={`key-${i}`} from={at} durationInFrames={4} name={`Key ${i + 1}`}>
+          <Audio
+            src={staticFile(KEY_SOUND)}
+            // Nudge each click's level so a run of keys does not sound looped.
+            volume={KEY_VOLUME * (0.85 + ((i * 37) % 7) / 24)}
+          />
+        </Sequence>
+      ))}
+
       <AbsoluteFill
         style={{
           alignItems: 'center',
@@ -126,9 +156,9 @@ export const Intro: React.FC<{durationInFrames: number}> = ({durationInFrames}) 
           caretHeight={CARET_HEIGHT * scale}
           style={{
             fontFamily: FONT_FAMILY,
-            fontWeight: TITLE_WEIGHT,
-            fontSize: TITLE_SIZE * scale,
-            letterSpacing: TITLE_TRACKING * scale,
+            fontWeight: TITLE.weight,
+            fontSize: TITLE.size * scale,
+            letterSpacing: TITLE.tracking * scale,
             color: BRAND.inkSoft,
             marginBottom: 18 * scale,
           }}
@@ -143,9 +173,9 @@ export const Intro: React.FC<{durationInFrames: number}> = ({durationInFrames}) 
           caretHeight={CARET_HEIGHT * scale}
           style={{
             fontFamily: FONT_FAMILY,
-            fontWeight: TITLE_WEIGHT,
-            fontSize: TITLE_SIZE * scale,
-            letterSpacing: TITLE_TRACKING * scale,
+            fontWeight: TITLE.weight,
+            fontSize: TITLE.size * scale,
+            letterSpacing: TITLE.tracking * scale,
             color: BRAND.navy,
             transform: `translateY(${settle * scale}px)`,
           }}
