@@ -44,6 +44,8 @@ export const TITLE = {
   size: 44,
   weight: 500,
   tracking: 0.5,
+  /** Both title lines share this, so neither reads as heavier than the other. */
+  color: '#0B2029',
 } as const;
 
 /** Font families registered in src/fonts.ts. */

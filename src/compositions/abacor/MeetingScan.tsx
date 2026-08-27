@@ -13,14 +13,22 @@ import {
   Highlight,
   ScanBeam,
   Scene,
+  Sfx,
   SparkIcon,
   StepLabel,
 } from '../../components/ui';
+import {SFX, SFX_VOLUME} from '../../sfx';
 import {FONT_FAMILY} from '../../fonts';
 import {springEnter} from '../../lib/animation';
 import {useScale} from '../../lib/layout';
 
 /** SCENE 2 - the meeting recap is read the same way. */
+/** Scan timings in frames, and where along the sweep each phrase lights up. */
+const SCAN_FROM = 6;
+const SCAN_TO = 40;
+const HIGHLIGHT_AT = [0.24, 0.52, 0.78];
+const DETECT_AT = 42;
+
 export const MeetingScan: React.FC<{durationInFrames: number}> = ({durationInFrames}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
@@ -29,7 +37,7 @@ export const MeetingScan: React.FC<{durationInFrames: number}> = ({durationInFra
   const cardIn = springEnter({frame, fps, delay: 2, damping: 200, stiffness: 80});
   const labelIn = springEnter({frame, fps, damping: 200, stiffness: 90});
 
-  const scan = interpolate(frame, [6, 40], [0, 1], {
+  const scan = interpolate(frame, [SCAN_FROM, SCAN_TO], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
     easing: Easing.inOut(Easing.quad),
@@ -43,6 +51,30 @@ export const MeetingScan: React.FC<{durationInFrames: number}> = ({durationInFra
 
   return (
     <Scene durationInFrames={durationInFrames}>
+      <Sfx
+        src={SFX.scan}
+        at={SCAN_FROM}
+        durationInFrames={SCAN_TO - SCAN_FROM + 8}
+        volume={SFX_VOLUME.scan}
+        name="Scan sweep"
+      />
+      {HIGHLIGHT_AT.map((p, i) => (
+        <Sfx
+          key={`ping-${i}`}
+          src={SFX.ping}
+          at={SCAN_FROM + p * (SCAN_TO - SCAN_FROM)}
+          durationInFrames={12}
+          volume={SFX_VOLUME.ping}
+          name={`Highlight ${i + 1}`}
+        />
+      ))}
+      <Sfx
+        src={SFX.detect}
+        at={DETECT_AT}
+        durationInFrames={18}
+        volume={SFX_VOLUME.detect}
+        name="Detected"
+      />
       <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
         <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
           <StepLabel step="02" title="Meeting note" scale={scale} progress={labelIn} />
@@ -122,9 +154,10 @@ export const MeetingScan: React.FC<{durationInFrames: number}> = ({durationInFra
                   }}
                 >
                   Client raised seven distinct issues, including{' '}
-                  {hl('a new second clinic opening in October,', 0.24)} potential worker
-                  misclassification risk for 5 of 9 therapists paid as 1099 contractors,
-                  and {hl('a 401(k) proposal from the PEO.', 0.52)}
+                  {hl('a new second clinic opening in October,', HIGHLIGHT_AT[0]!)}{' '}
+                  potential worker misclassification risk for 5 of 9 therapists paid as
+                  1099 contractors, and{' '}
+                  {hl('a 401(k) proposal from the PEO.', HIGHLIGHT_AT[1]!)}
                 </div>
               </div>
 
@@ -146,8 +179,8 @@ export const MeetingScan: React.FC<{durationInFrames: number}> = ({durationInFra
                   profitable.
                 </>,
                 <>
-                  {hl('Landlord offered the building at $1.4M', 0.78)} — needs a buy vs.
-                  lease analysis.
+                  {hl('Landlord offered the building at $1.4M', HIGHLIGHT_AT[2]!)} — needs
+                  a buy vs. lease analysis.
                 </>,
                 <>Advised not to sign the 401(k) paperwork before the next discussion.</>,
               ].map((line, i) => (
@@ -187,7 +220,7 @@ export const MeetingScan: React.FC<{durationInFrames: number}> = ({durationInFra
               scale={scale}
               frame={frame}
               fps={fps}
-              delay={42}
+              delay={DETECT_AT}
               style={{right: 0, top: -28 * scale}}
             />
           </div>

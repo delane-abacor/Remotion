@@ -14,8 +14,10 @@ import {
   Monogram,
   ScanBeam,
   Scene,
+  Sfx,
   StepLabel,
 } from '../../components/ui';
+import {SFX, SFX_VOLUME} from '../../sfx';
 import {FONT_FAMILY} from '../../fonts';
 import {springEnter} from '../../lib/animation';
 import {useScale} from '../../lib/layout';
@@ -29,6 +31,16 @@ type Message = {
   lines: React.ReactNode[];
 };
 
+/**
+ * Scan timings in frames, and where along the sweep each phrase lights up.
+ * The beam, the highlights and their sounds all read from these, so the audio
+ * cannot drift from the picture.
+ */
+const SCAN_FROM = 6;
+const SCAN_TO = 42;
+const HIGHLIGHT_AT = [0.2, 0.46, 0.72];
+const DETECT_AT = 44;
+
 export const EmailScan: React.FC<{durationInFrames: number}> = ({durationInFrames}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
@@ -38,7 +50,7 @@ export const EmailScan: React.FC<{durationInFrames: number}> = ({durationInFrame
   const labelIn = springEnter({frame, fps, damping: 200, stiffness: 90});
 
   // The beam sweeps between these frames.
-  const scan = interpolate(frame, [6, 42], [0, 1], {
+  const scan = interpolate(frame, [SCAN_FROM, SCAN_TO], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
     easing: Easing.inOut(Easing.quad),
@@ -56,7 +68,10 @@ export const EmailScan: React.FC<{durationInFrames: number}> = ({durationInFrame
       initials: 'TR',
       time: '09:14',
       lines: [
-        <>We signed the lease {hl('for a second clinic', 0.2)} three weeks ago —</>,
+        <>
+          We signed the lease {hl('for a second clinic', HIGHLIGHT_AT[0]!)} three weeks
+          ago —
+        </>,
         <>doors open in October. Do we need to change anything?</>,
       ],
     },
@@ -65,7 +80,10 @@ export const EmailScan: React.FC<{durationInFrames: number}> = ({durationInFrame
       initials: 'PA',
       time: '09:31',
       lines: [
-        <>Payroll question too: {hl('5 of our 9 therapists are on 1099', 0.46)}</>,
+        <>
+          Payroll question too:{' '}
+          {hl('5 of our 9 therapists are on 1099', HIGHLIGHT_AT[1]!)}
+        </>,
         <>and the PEO just sent over a 401(k) proposal to sign.</>,
       ],
     },
@@ -74,7 +92,10 @@ export const EmailScan: React.FC<{durationInFrames: number}> = ({durationInFrame
       initials: 'TR',
       time: '09:48',
       lines: [
-        <>Also — the landlord offered to {hl('sell the building for $1.4M.', 0.72)}</>,
+        <>
+          Also — the landlord offered to{' '}
+          {hl('sell the building for $1.4M.', HIGHLIGHT_AT[2]!)}
+        </>,
         <>Not sure if that is something we should look at.</>,
       ],
     },
@@ -82,6 +103,30 @@ export const EmailScan: React.FC<{durationInFrames: number}> = ({durationInFrame
 
   return (
     <Scene durationInFrames={durationInFrames}>
+      <Sfx
+        src={SFX.scan}
+        at={SCAN_FROM}
+        durationInFrames={SCAN_TO - SCAN_FROM + 8}
+        volume={SFX_VOLUME.scan}
+        name="Scan sweep"
+      />
+      {HIGHLIGHT_AT.map((p, i) => (
+        <Sfx
+          key={`ping-${i}`}
+          src={SFX.ping}
+          at={SCAN_FROM + p * (SCAN_TO - SCAN_FROM)}
+          durationInFrames={12}
+          volume={SFX_VOLUME.ping}
+          name={`Highlight ${i + 1}`}
+        />
+      ))}
+      <Sfx
+        src={SFX.detect}
+        at={DETECT_AT}
+        durationInFrames={18}
+        volume={SFX_VOLUME.detect}
+        name="Detected"
+      />
       <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
         <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
           <StepLabel step="01" title="Email thread" scale={scale} progress={labelIn} />
@@ -195,7 +240,7 @@ export const EmailScan: React.FC<{durationInFrames: number}> = ({durationInFrame
               scale={scale}
               frame={frame}
               fps={fps}
-              delay={44}
+              delay={DETECT_AT}
               style={{right: 0, top: -28 * scale}}
             />
           </div>

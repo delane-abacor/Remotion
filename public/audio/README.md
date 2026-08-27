@@ -6,8 +6,16 @@ with real sound effects whenever you like - keep the filenames, or update the
 
 | file | used by | notes |
 |---|---|---|
-| `keypress.wav` | `src/compositions/abacor/Intro.tsx` | 60ms soft key click, one per typed character |
-| `whoosh.wav` | `src/compositions/TitleCard.tsx` | 0.55s, behind the `playSound` prop |
+| `keypress.wav` | `Intro` | 60ms key click, one per typed character |
+| `scan.wav` | `EmailScan`, `MeetingScan` | 1.25s low sweep under the scan beam |
+| `ping.wav` | `EmailScan`, `MeetingScan` | 280ms blip as a phrase lights up |
+| `tick.wav` | `Opportunities`, `RevenueGrowth` | 50ms tick as a row or bar lands |
+| `detect.wav` | scans, pipeline total, growth badge | 420ms two-tone confirmation |
+| `whoosh.wav` | `TitleCard` | 0.55s, behind the `playSound` prop |
+
+Filenames and default levels are declared in `src/sfx.ts`, and scenes place
+them with the `<Sfx>` helper in `src/components/ui.tsx`. To rebalance the mix,
+edit `SFX_VOLUME` rather than individual scenes.
 
 Both start at sample 0 with no leading silence, so a `<Sequence from={n}>`
 fires them exactly on frame `n`. See the "trim leading silence" tip in the

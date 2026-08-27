@@ -1,5 +1,13 @@
 import React from 'react';
-import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
+import {
+  AbsoluteFill,
+  Audio,
+  Easing,
+  Sequence,
+  interpolate,
+  staticFile,
+  useCurrentFrame,
+} from 'remotion';
 import {BRAND} from '../brand';
 import {enterExit, springEnter} from '../lib/animation';
 import {FONT_FAMILY} from '../fonts';
@@ -9,6 +17,29 @@ import {FONT_FAMILY} from '../fonts';
  * the product's real surface treatment: white cards, hairline borders,
  * generous radius, orange as the only accent.
  */
+
+/**
+ * A one-shot sound effect placed at a specific frame of the scene it sits in.
+ *
+ * `at` is rounded because Sequence needs a whole frame and several scenes
+ * derive their timings from fractional stagger values.
+ */
+export const Sfx: React.FC<{
+  src: string;
+  at: number;
+  volume?: number;
+  /** Long enough for the file to finish; audio is trimmed, never looped. */
+  durationInFrames?: number;
+  name?: string;
+}> = ({src, at, volume = 0.5, durationInFrames = 45, name}) => (
+  <Sequence
+    from={Math.round(at)}
+    durationInFrames={durationInFrames}
+    name={name ?? 'SFX'}
+  >
+    <Audio src={staticFile(src)} volume={volume} />
+  </Sequence>
+);
 
 /**
  * Wraps a scene so it fades in and fully out within its own Sequence.

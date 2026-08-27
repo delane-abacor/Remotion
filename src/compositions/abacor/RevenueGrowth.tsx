@@ -7,7 +7,8 @@ import {
   useVideoConfig,
 } from 'remotion';
 import {BRAND} from '../../brand';
-import {Card, Scene, StepLabel} from '../../components/ui';
+import {Card, Scene, Sfx, StepLabel} from '../../components/ui';
+import {SFX, SFX_VOLUME} from '../../sfx';
 import {DISPLAY_FAMILY, FONT_FAMILY} from '../../fonts';
 import {springEnter} from '../../lib/animation';
 import {useScale} from '../../lib/layout';
@@ -49,8 +50,29 @@ export const RevenueGrowth: React.FC<{durationInFrames: number}> = ({
   const revenue = interpolate(countProgress, [0, 1], [START_REVENUE, END_REVENUE]);
   const growthPct = ((END_REVENUE - START_REVENUE) / START_REVENUE) * 100;
 
+  // Frame at which the growth badge lands - shared by the visual and the chime.
+  const BADGE_AT = FIRST_BAR + 18;
+
   return (
     <Scene durationInFrames={durationInFrames}>
+      {BARS.map((bar, i) => (
+        <Sfx
+          key={`bar-${i}`}
+          src={SFX.tick}
+          at={FIRST_BAR + i * BAR_STAGGER}
+          durationInFrames={6}
+          // The final bar is the payoff, so it lands a little harder.
+          volume={SFX_VOLUME.tick * (i === BARS.length - 1 ? 1.15 : 0.8)}
+          name={`Bar ${i + 1}`}
+        />
+      ))}
+      <Sfx
+        src={SFX.detect}
+        at={BADGE_AT}
+        durationInFrames={18}
+        volume={SFX_VOLUME.detect}
+        name="Growth"
+      />
       <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
         <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
           <StepLabel step="04" title="Revenue growth" scale={scale} progress={labelIn} />
@@ -100,7 +122,7 @@ export const RevenueGrowth: React.FC<{durationInFrames: number}> = ({
                   padding: `${10 * scale}px ${18 * scale}px`,
                   borderRadius: 999,
                   background: BRAND.greenTint,
-                  opacity: springEnter({frame, fps, delay: FIRST_BAR + 18, damping: 200}),
+                  opacity: springEnter({frame, fps, delay: BADGE_AT, damping: 200}),
                 }}
               >
                 <svg

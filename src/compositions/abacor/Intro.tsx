@@ -1,14 +1,8 @@
 import React from 'react';
-import {
-  AbsoluteFill,
-  Audio,
-  Sequence,
-  interpolate,
-  staticFile,
-  useCurrentFrame,
-} from 'remotion';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 import {BRAND, TITLE} from '../../brand';
-import {Scene} from '../../components/ui';
+import {Scene, Sfx} from '../../components/ui';
+import {SFX, SFX_VOLUME} from '../../sfx';
 import {FONT_FAMILY} from '../../fonts';
 import {useScale} from '../../lib/layout';
 
@@ -42,10 +36,6 @@ const BLINK = 15;
  */
 const CARET_HEIGHT = 38;
 const CARET_WIDTH = 4;
-
-/** Keystroke sound. One per character, at the frame that character appears. */
-const KEY_SOUND = 'audio/keypress.wav';
-const KEY_VOLUME = 0.7;
 
 /**
  * Frames at which each character lands. `from` on a <Sequence> must be a whole
@@ -131,13 +121,15 @@ export const Intro: React.FC<{durationInFrames: number}> = ({durationInFrames}) 
   return (
     <Scene durationInFrames={durationInFrames}>
       {keystrokes.map((at, i) => (
-        <Sequence key={`key-${i}`} from={at} durationInFrames={4} name={`Key ${i + 1}`}>
-          <Audio
-            src={staticFile(KEY_SOUND)}
-            // Nudge each click's level so a run of keys does not sound looped.
-            volume={KEY_VOLUME * (0.85 + ((i * 37) % 7) / 24)}
-          />
-        </Sequence>
+        <Sfx
+          key={`key-${i}`}
+          src={SFX.key}
+          at={at}
+          durationInFrames={4}
+          name={`Key ${i + 1}`}
+          // Nudge each click's level so a run of keys does not sound looped.
+          volume={SFX_VOLUME.key * (0.85 + ((i * 37) % 7) / 24)}
+        />
       ))}
 
       <AbsoluteFill
@@ -159,7 +151,7 @@ export const Intro: React.FC<{durationInFrames: number}> = ({durationInFrames}) 
             fontWeight: TITLE.weight,
             fontSize: TITLE.size * scale,
             letterSpacing: TITLE.tracking * scale,
-            color: BRAND.inkSoft,
+            color: TITLE.color,
             marginBottom: 18 * scale,
           }}
         />
@@ -176,7 +168,7 @@ export const Intro: React.FC<{durationInFrames: number}> = ({durationInFrames}) 
             fontWeight: TITLE.weight,
             fontSize: TITLE.size * scale,
             letterSpacing: TITLE.tracking * scale,
-            color: BRAND.navy,
+            color: TITLE.color,
             transform: `translateY(${settle * scale}px)`,
           }}
         />

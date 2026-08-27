@@ -7,7 +7,8 @@ import {
   useVideoConfig,
 } from 'remotion';
 import {BRAND} from '../../brand';
-import {Card, Scene, SparkIcon, StepLabel} from '../../components/ui';
+import {Card, Scene, Sfx, SparkIcon, StepLabel} from '../../components/ui';
+import {SFX, SFX_VOLUME} from '../../sfx';
 import {DISPLAY_FAMILY, FONT_FAMILY} from '../../fonts';
 import {springEnter} from '../../lib/animation';
 import {useScale} from '../../lib/layout';
@@ -54,8 +55,28 @@ export const Opportunities: React.FC<{durationInFrames: number}> = ({
     return sum + o.value * t;
   }, 0);
 
+  // A tick as each row lands, then a chime once the total has finished counting.
+  const TOTAL_AT = FIRST_ROW + OPPORTUNITIES.length * ROW_STAGGER + 6;
+
   return (
     <Scene durationInFrames={durationInFrames}>
+      {OPPORTUNITIES.map((o, i) => (
+        <Sfx
+          key={`tick-${o.title}`}
+          src={SFX.tick}
+          at={FIRST_ROW + i * ROW_STAGGER}
+          durationInFrames={6}
+          volume={SFX_VOLUME.tick}
+          name={`Row ${i + 1}`}
+        />
+      ))}
+      <Sfx
+        src={SFX.detect}
+        at={TOTAL_AT}
+        durationInFrames={18}
+        volume={SFX_VOLUME.detect * 0.85}
+        name="Total"
+      />
       <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
         <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
           <StepLabel step="03" title="Opportunities" scale={scale} progress={labelIn} />
@@ -197,7 +218,7 @@ export const Opportunities: React.FC<{durationInFrames: number}> = ({
               opacity: springEnter({
                 frame,
                 fps,
-                delay: FIRST_ROW + OPPORTUNITIES.length * ROW_STAGGER + 6,
+                delay: TOTAL_AT,
                 damping: 200,
               }),
             }}
