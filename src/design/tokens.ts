@@ -74,6 +74,18 @@ export const WHITE = {
 } as const;
 
 export const HAIRLINE = 'rgba(0,0,0,.08)';
+
+/**
+ * OUTLINE WEIGHT
+ * foundations.md lists ink-08 for hairlines and card borders, and ink-12 for
+ * strong borders on interactive elements. This video uses ink-12 everywhere
+ * structural: at 1080p through h264 an 8% line all but disappears, and the
+ * layout stops reading as a set of contained objects.
+ *
+ * Both values are system tokens. Switching this one constant back to INK.a08
+ * returns the video to the letter of the foundations doc.
+ */
+export const OUTLINE = 'rgba(26,26,26,.12)';
 export const HAIRLINE_STRONG = 'rgba(0,0,0,.12)';
 export const NEUTRAL_TRACK = '#D9D9D9';
 /** Warm surface, used for decks. This video sits on it. */

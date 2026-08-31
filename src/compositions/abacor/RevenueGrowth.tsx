@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
-import {INK, LS, ORANGE, R, S, T, W} from '../../design/tokens';
+import {INK, LS, ORANGE, OUTLINE, R, S, T, W} from '../../design/tokens';
 import {ABACOR_EASE, abacorSpring, riseIn, useDesignScale} from '../../design/motion';
 import {
   MatteCard,
@@ -124,7 +124,7 @@ export const RevenueGrowth: React.FC<{durationInFrames: number}> = ({
                     alignItems: 'flex-end',
                     gap: S.s3 * s,
                     height: CHART_H * s,
-                    borderBottom: `${1 * s}px solid ${INK.a08}`,
+                    borderBottom: `${1 * s}px solid ${OUTLINE}`,
                   }}
                 >
                   {BARS.map((bar, i) => {

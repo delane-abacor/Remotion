@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
-import {INK, LH, S, T, W} from '../../design/tokens';
+import {INK, LH, OUTLINE, S, T, W} from '../../design/tokens';
 import {ABACOR_EASE, abacorSpring, useDesignScale} from '../../design/motion';
 import {
   Highlight,
@@ -145,7 +145,7 @@ export const EmailScan: React.FC<{durationInFrames: number}> = ({durationInFrame
                       gap: S.s3 * s,
                       padding: `${S.s3 * s}px ${S.s4 * s}px`,
                       borderBottom:
-                        i < emails.length - 1 ? `${1 * s}px solid ${INK.a08}` : 'none',
+                        i < emails.length - 1 ? `${1 * s}px solid ${OUTLINE}` : 'none',
                     }}
                   >
                     <RowGlyph label={email.initials} />

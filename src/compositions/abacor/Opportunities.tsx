@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
-import {INK, LS, S, T, W} from '../../design/tokens';
+import {INK, LS, OUTLINE, S, T, W} from '../../design/tokens';
 import {ABACOR_EASE, abacorSpring, riseIn, useDesignScale} from '../../design/motion';
 import {
   MatteCard,
@@ -151,7 +151,7 @@ export const Opportunities: React.FC<{durationInFrames: number}> = ({
                         padding: `${S.s3 * s}px ${S.s4 * s}px`,
                         borderBottom:
                           i < OPPORTUNITIES.length - 1
-                            ? `${1 * s}px solid ${INK.a08}`
+                            ? `${1 * s}px solid ${OUTLINE}`
                             : 'none',
                         ...riseIn(p, 8 * s),
                       }}
