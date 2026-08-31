@@ -1,0 +1,169 @@
+/* ============================================================
+   ABACOR DESIGN TOKENS
+   Measured from production Figma:
+     AjmRPZrbKCFmurjDLH2AGy  Settings · Billing · Email  (124 screens)
+     SnA0v79gLG3VSISdCvRO7l  Opportunities · Usage
+   Counts in comments = real occurrences in the files.
+   Neither file has Figma variables; these were sampled from the art.
+   ============================================================ */
+
+:root {
+
+/* ---------- 1. BRAND ---------------------------------------- */
+  --abacor-orange:      #FF6903;   /* 2157 uses. The action colour. */
+  --abacor-orange-hover:#EB4600;   /* pressed / darker step        */
+  --abacor-orange-deep: #B34A02;   /* text on orange tint          */
+  --abacor-orange-mid:  #FA9031;
+  --abacor-orange-soft: #FF853E;
+  --abacor-orange-pale: #FFCC99;
+  --abacor-orange-wash: #FFDFC7;   /* chart fills, empty bars      */
+
+  --abacor-orange-25: rgba(255,105,3,.25);
+  --abacor-orange-16: rgba(255,105,3,.16);
+  --abacor-orange-14: rgba(255,105,3,.14);
+  --abacor-orange-12: rgba(255,105,3,.12);
+  --abacor-orange-10: rgba(255,105,3,.10);
+  --abacor-orange-07: rgba(255,105,3,.07);
+  --abacor-orange-05: rgba(255,105,3,.05);
+
+/* ---------- 2. SEMANTIC ------------------------------------- */
+  --success:        #00AC47;              /* 218 uses. Synced, connected. */
+  --success-30:     rgba(0,172,71,.30);
+  --success-12:     rgba(0,172,71,.12);
+  --success-08:     rgba(0,172,71,.08);
+
+  --danger:         #FF2E2E;              /* at capacity, failed payment  */
+  --danger-12:      rgba(255,46,46,.12);
+
+  --avatar-purple:  #7763DD;              /* 174 uses. User avatars only. */
+
+/* ---------- 3. INK -----------------------------------------
+   #1A1A1A at varying alpha IS the entire grey scale.
+   There is no second grey in either file. Do not add one.       */
+  --ink:      #1A1A1A;                    /* 5291 uses */
+  --ink-90:   rgba(26,26,26,.90);
+  --ink-75:   rgba(26,26,26,.75);
+  --ink-70:   rgba(26,26,26,.70);         /* 1213 */
+  --ink-62:   rgba(26,26,26,.62);
+  --ink-60:   rgba(26,26,26,.60);         /* 1348 */
+  --ink-55:   rgba(26,26,26,.55);
+  --ink-45:   rgba(26,26,26,.45);
+  --ink-40:   rgba(26,26,26,.40);
+  --ink-12:   rgba(26,26,26,.12);
+  --ink-10:   rgba(26,26,26,.10);
+  --ink-08:   rgba(26,26,26,.08);
+  --ink-06:   rgba(26,26,26,.06);         /* 1319 */
+  --ink-04:   rgba(26,26,26,.04);         /* 465  */
+  --ink-03:   rgba(26,26,26,.03);         /* matte card shell */
+
+  --white:     #FFFFFF;                   /* 3836 */
+  --white-96:  rgba(255,255,255,.96);
+  --white-70:  rgba(255,255,255,.70);     /* modal footer bar   */
+  --white-30:  rgba(255,255,255,.30);     /* status strip       */
+  --white-20:  rgba(255,255,255,.20);     /* rail glyph, idle   */
+  --white-16:  rgba(255,255,255,.16);
+  --white-08:  rgba(255,255,255,.08);     /* rail active row    */
+
+  --hairline:        rgba(0,0,0,.08);
+  --hairline-strong: rgba(0,0,0,.12);
+  --scrim:           rgba(0,0,0,.50);     /* 537 */
+
+  --neutral-line:    #EBEBEB;             /* unchecked checkbox */
+  --neutral-track:   #D9D9D9;             /* progress track     */
+  --paper:           #E8E6DE;             /* warm surface, decks */
+
+/* ---------- 4. CATEGORICAL -----------------------------------
+   For charts and multi-series only. Never for UI chrome.        */
+  --cat-1: #7763DD;   /* purple */
+  --cat-2: #FF6903;   /* orange */
+  --cat-3: #EB4600;   /* deep orange */
+  --cat-4: #FA9031;   /* mid orange  */
+  --cat-5: #FF853E;   /* soft orange */
+  --cat-6: #00AC47;   /* green */
+
+/* ---------- 5. INTEGRATION BRANDS ----------------------------
+   Provider logos only. Never as UI colour.                      */
+  --google-blue:#4285F4; --google-green:#34A853;
+  --google-yellow:#FBBC04; --google-red:#EA4335;
+  --ms-red:#F25022; --ms-green:#7FBA00;
+  --ms-blue:#00A4EF; --ms-yellow:#FFB900;
+  --zoom-blue:#2D8CFF;
+
+/* ---------- 6. TYPEFACE --------------------------------------
+   Sohne only, two weights.
+   Kraftig is a MEDIUM (500). Rendering it at 700 is wrong.
+   Geist and Test Tiempos Text appear in the files but ONLY inside
+   third-party logo lockups. Never import them.                  */
+  --font:       "Sohne", -apple-system, sans-serif;
+  --w-regular:  400;   /* Sohne Buch    */
+  --w-medium:   500;   /* Sohne Kraftig */
+
+/* ---------- 7. TYPE RAMP -------------------------------------
+   14 and 12 carry the product. Everything else is an accent.    */
+  --t-28: 28px;  /* Kraftig · hero figure                */
+  --t-26: 26px;  /* Kraftig · stat value, -2% tracking   */
+  --t-24: 24px;  /* Kraftig · page title          (224)  */
+  --t-20: 20px;  /* Kraftig · modal title                */
+  --t-19: 19px;  /* Buch    · quiet display               */
+  --t-18: 18px;  /* Kraftig · card title           (91)  */
+  --t-16: 16px;  /* Kraftig · section heading      (52)  */
+  --t-15: 15px;  /* Kraftig · list heading         (76)  */
+  --t-14: 14px;  /* body default                 (5186)  */
+  --t-13: 13px;  /* secondary body                (459)  */
+  --t-12: 12px;  /* meta, counts, helper         (4633)  */
+  --t-11: 11px;  /* uppercase section label               */
+  --t-10: 10px;  /* tags and pills                (413)  */
+
+  --lh-default: 135%;
+  --lh-tight:   120%;
+  --ls-label:   0.04em;   /* uppercase labels */
+  --ls-tag:     0.01em;
+  --ls-stat:    -0.02em;
+
+/* ---------- 8. RADIUS ---------------------------------------- */
+  --r-4:  4px;    /* tags                     (318) */
+  --r-6:  6px;    /* nav rows, status pills  (1257) */
+  --r-8:  8px;    /* buttons, inputs, panels (1698) */
+  --r-10: 10px;   /* stat rows                      */
+  --r-12: 12px;   /* cards, menus             (468) */
+  --r-16: 16px;   /* modal, app shell         (127) */
+  --r-30: 30px;   /* pill buttons             (243) */
+  --r-40: 40px;   /* segmented tracks         (488) */
+  --r-pill: 9999px;
+
+/* ---------- 9. SPACING. Multiples of 4 only. ------------------ */
+  --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px;
+  --s-5:20px; --s-6:24px; --s-8:32px; --s-10:40px; --s-12:48px;
+
+/* ---------- 10. ELEVATION ------------------------------------
+   Two shadows carry the whole product.                          */
+  --shadow-control: 0 1px 2px 0 rgba(0,0,0,.12);          /* 233 */
+  --shadow-primary: 0 1px 2px 0 rgba(255,105,3,.12),
+                    0 4px 8px 0 rgba(255,105,3,.16);
+  --shadow-success: 0 0 0 2px rgba(0,172,71,.12),
+                    0 1px 8px 1px rgba(0,172,71,.30);
+  --shadow-menu:    0 8px 24px 0 rgba(0,0,0,.14);
+  --shadow-modal:   0 24px 64px 0 rgba(0,0,0,.24);
+
+/* ---------- 11. METER GRADIENT -------------------------------
+   Three stops: solid, washed at 47.5%, solid at 70%, plus glow.
+   The most recognisable detail in the product.
+   A two-stop fade loses it.                                     */
+  --meter-orange: linear-gradient(90deg,#FF6903 0%,#FFCBA8 47.5%,#FF6903 70%);
+  --meter-red:    linear-gradient(90deg,#FF2E2E 0%,#FFADAD 47.5%,#FF2E2E 70%);
+  --meter-track:  rgba(26,26,26,.10);
+  --meter-glow-orange: 0 0 8px rgba(255,105,3,.25);
+  --meter-glow-red:    0 0 8px rgba(255,46,46,.25);
+
+/* ---------- 12. LAYOUT --------------------------------------- */
+  --shell-w:1440px;  --shell-h:900px;  --shell-radius:16px;
+  --shell-bg:#1A1A1A;                    /* rail is this showing through */
+  --content-x:60px;  --content-y:8px;
+  --content-w:1372px; --content-h:884px; --content-radius:12px;
+  --rail-w:60px;     --settings-nav-w:221px; --settings-content-w:1010px;
+  --modal-sm:560px;  /* read · confirm · wait  */
+  --modal-lg:760px;  /* scan a list            */
+  --modal-max-h:640px;
+  --control-h:36px;  /* every button, input, dropdown */
+  --row-h:32px;      /* nav rows                      */
+}

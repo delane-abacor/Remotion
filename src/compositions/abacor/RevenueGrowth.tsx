@@ -1,19 +1,27 @@
 import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+import {INK, LS, ORANGE, R, S, T, W} from '../../design/tokens';
+import {ABACOR_EASE, abacorSpring, riseIn, useDesignScale} from '../../design/motion';
 import {
-  AbsoluteFill,
-  Easing,
-  interpolate,
-  useCurrentFrame,
-  useVideoConfig,
-} from 'remotion';
-import {BRAND} from '../../brand';
-import {Card, Scene, Sfx, StepLabel} from '../../components/ui';
+  MatteCard,
+  PanelHeader,
+  Scene,
+  SectionLabel,
+  Sfx,
+  Tag,
+  text,
+} from '../../components/ui';
+import {AppShell} from '../../components/AppShell';
 import {SFX, SFX_VOLUME} from '../../sfx';
-import {DISPLAY_FAMILY, FONT_FAMILY} from '../../fonts';
-import {springEnter} from '../../lib/animation';
-import {useScale} from '../../lib/layout';
 
-/** SCENE 4 - the pipeline turns into revenue growth. */
+/**
+ * SCENE 4 - what the pipeline is worth over time.
+ *
+ * Orange budget: the final bar only. Earlier bars use orange-wash, which is
+ * the system's empty-bar chart fill. The growth figure is a neutral tag, not
+ * green: green means synced or connected, and the system is explicit that it
+ * is never decorative.
+ */
 
 const BARS = [
   {label: 'Q1', value: 0.42},
@@ -26,32 +34,33 @@ const BARS = [
 
 const START_REVENUE = 486000;
 const END_REVENUE = 927500;
+const CHART_H = 220;
 
-const CHART_HEIGHT = 300;
-const BAR_STAGGER = 3;
-const FIRST_BAR = 4;
+const BAR_STAGGER = 2;
+const FIRST_BAR = 6;
+const COUNT_FRAMES = 20;
 
 export const RevenueGrowth: React.FC<{durationInFrames: number}> = ({
   durationInFrames,
 }) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const scale = useScale();
+  const s = useDesignScale();
 
-  const labelIn = springEnter({frame, fps, damping: 200, stiffness: 90});
-  const cardIn = springEnter({frame, fps, delay: 2, damping: 200, stiffness: 80});
+  const labelIn = abacorSpring({frame, fps});
+  const cardIn = abacorSpring({frame, fps, delay: 2});
 
-  // Headline number counts from the starting revenue to the new one.
-  const countProgress = interpolate(frame, [FIRST_BAR, FIRST_BAR + 28], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-    easing: Easing.out(Easing.cubic),
-  });
+  const countProgress = interpolate(
+    frame,
+    [FIRST_BAR, FIRST_BAR + COUNT_FRAMES],
+    [0, 1],
+    {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: ABACOR_EASE},
+  );
   const revenue = interpolate(countProgress, [0, 1], [START_REVENUE, END_REVENUE]);
-  const growthPct = ((END_REVENUE - START_REVENUE) / START_REVENUE) * 100;
-
-  // Frame at which the growth badge lands - shared by the visual and the chime.
-  const BADGE_AT = FIRST_BAR + 18;
+  const growth = Math.round(
+    ((END_REVENUE - START_REVENUE) / START_REVENUE) * 100 * countProgress,
+  );
+  const badgeIn = abacorSpring({frame, fps, delay: FIRST_BAR + COUNT_FRAMES});
 
   return (
     <Scene durationInFrames={durationInFrames}>
@@ -61,189 +70,120 @@ export const RevenueGrowth: React.FC<{durationInFrames: number}> = ({
           src={SFX.tick}
           at={FIRST_BAR + i * BAR_STAGGER}
           durationInFrames={6}
-          // The final bar is the payoff, so it lands a little harder.
           volume={SFX_VOLUME.tick * (i === BARS.length - 1 ? 1.15 : 0.8)}
           name={`Bar ${i + 1}`}
         />
       ))}
       <Sfx
         src={SFX.detect}
-        at={BADGE_AT}
+        at={FIRST_BAR + COUNT_FRAMES}
         durationInFrames={18}
         volume={SFX_VOLUME.detect}
         name="Growth"
       />
-      <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
-        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
-          <StepLabel step="04" title="Revenue growth" scale={scale} progress={labelIn} />
 
-          <Card scale={scale} width={1180} progress={cardIn} padding={44}>
-            {/* Headline figure */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'flex-end',
-                justifyContent: 'space-between',
-                marginBottom: 40 * scale,
-              }}
-            >
-              <div>
+      <AppShell activeRail={4}>
+        <AbsoluteFill
+          style={{
+            padding: S.s8 * s,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {/* Label and card share a column so the label aligns to the card edge. */}
+          <div style={{width: 1120 * s}}>
+            <div style={{marginBottom: S.s5 * s}}>
+              <SectionLabel progress={labelIn}>Usage</SectionLabel>
+            </div>
+
+            <MatteCard width={1120} progress={cardIn}>
+              <PanelHeader
+                title="Advisory revenue"
+                right={
+                  <div style={{...riseIn(badgeIn, 8 * s)}}>
+                    <Tag>+{growth}% over six quarters</Tag>
+                  </div>
+                }
+              />
+
+              <div style={{padding: S.s4 * s}}>
                 <div
                   style={{
-                    fontFamily: FONT_FAMILY,
-                    fontSize: 17 * scale,
-                    letterSpacing: 1.8 * scale,
-                    textTransform: 'uppercase',
-                    color: BRAND.muted,
-                    marginBottom: 10 * scale,
-                  }}
-                >
-                  Advisory revenue
-                </div>
-                <div
-                  style={{
-                    fontFamily: DISPLAY_FAMILY,
-                    fontWeight: 700,
-                    fontSize: 76 * scale,
-                    lineHeight: 1,
-                    color: BRAND.navy,
+                    ...text(s, T.t28, W.kraftig, INK.base),
+                    letterSpacing: LS.stat * T.t28 * s,
                     fontVariantNumeric: 'tabular-nums',
+                    marginBottom: S.s5 * s,
                   }}
                 >
                   ${Math.round(revenue).toLocaleString('en-US')}
                 </div>
-              </div>
 
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 9 * scale,
-                  padding: `${10 * scale}px ${18 * scale}px`,
-                  borderRadius: 999,
-                  background: BRAND.greenTint,
-                  opacity: springEnter({frame, fps, delay: BADGE_AT, damping: 200}),
-                }}
-              >
-                <svg
-                  width={19 * scale}
-                  height={19 * scale}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                >
-                  <path
-                    d="M5 16.5 11 10l3.5 3.5L20 7"
-                    stroke={BRAND.green}
-                    strokeWidth={2.6}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M15 7h5v5"
-                    stroke={BRAND.green}
-                    strokeWidth={2.6}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <span
+                <div
                   style={{
-                    fontFamily: FONT_FAMILY,
-                    fontWeight: 700,
-                    fontSize: 23 * scale,
-                    color: BRAND.green,
-                    fontVariantNumeric: 'tabular-nums',
+                    display: 'flex',
+                    alignItems: 'flex-end',
+                    gap: S.s3 * s,
+                    height: CHART_H * s,
+                    borderBottom: `${1 * s}px solid ${INK.a08}`,
                   }}
                 >
-                  +{Math.round(growthPct * countProgress)}%
-                </span>
-              </div>
-            </div>
+                  {BARS.map((bar, i) => {
+                    const grow = abacorSpring({
+                      frame,
+                      fps,
+                      delay: FIRST_BAR + i * BAR_STAGGER,
+                    });
+                    const isLast = i === BARS.length - 1;
 
-            {/* Bars */}
+                    return (
+                      <div
+                        key={i}
+                        style={{
+                          flex: 1,
+                          height: `${bar.value * grow * 100}%`,
+                          borderRadius: `${R.r4 * s}px ${R.r4 * s}px 0 0`,
+                          background: isLast ? ORANGE.base : ORANGE.wash,
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+
+                <div style={{display: 'flex', gap: S.s3 * s, marginTop: S.s2 * s}}>
+                  {BARS.map((bar, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        flex: 1,
+                        textAlign: 'center',
+                        ...text(
+                          s,
+                          T.t12,
+                          i === BARS.length - 1 ? W.kraftig : W.buch,
+                          i === BARS.length - 1 ? INK.base : INK.a45,
+                        ),
+                      }}
+                    >
+                      {bar.label}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </MatteCard>
+
             <div
               style={{
-                display: 'flex',
-                alignItems: 'flex-end',
-                gap: 26 * scale,
-                height: CHART_HEIGHT * scale,
-                borderBottom: `${2 * scale}px solid ${BRAND.line}`,
-                paddingBottom: 2 * scale,
+                marginTop: S.s4 * s,
+                ...text(s, T.t12, W.buch, INK.a45),
+                opacity: badgeIn,
               }}
             >
-              {BARS.map((bar, i) => {
-                const grow = springEnter({
-                  frame,
-                  fps,
-                  delay: FIRST_BAR + i * BAR_STAGGER,
-                  damping: 19,
-                  stiffness: 95,
-                });
-                const isLast = i === BARS.length - 1;
-
-                return (
-                  <div
-                    key={i}
-                    style={{
-                      flex: 1,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'flex-end',
-                      height: '100%',
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: '100%',
-                        height: `${bar.value * grow * 100}%`,
-                        borderRadius: `${10 * scale}px ${10 * scale}px 0 0`,
-                        background: isLast
-                          ? `linear-gradient(180deg, ${BRAND.orange} 0%, ${BRAND.orangeDeep} 100%)`
-                          : `linear-gradient(180deg, ${BRAND.orange}38 0%, ${BRAND.orange}1F 100%)`,
-                        border: isLast
-                          ? 'none'
-                          : `${1.5 * scale}px solid ${BRAND.orange}33`,
-                        borderBottom: 'none',
-                      }}
-                    />
-                  </div>
-                );
-              })}
+              Abacor reads your email and meetings. It does not send, reply or file
+              anything.
             </div>
-
-            <div style={{display: 'flex', gap: 26 * scale, marginTop: 14 * scale}}>
-              {BARS.map((bar, i) => (
-                <div
-                  key={i}
-                  style={{
-                    flex: 1,
-                    textAlign: 'center',
-                    fontFamily: FONT_FAMILY,
-                    fontSize: 18 * scale,
-                    fontWeight: i === BARS.length - 1 ? 700 : 400,
-                    color: i === BARS.length - 1 ? BRAND.navy : BRAND.muted,
-                  }}
-                >
-                  {bar.label}
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          <div
-            style={{
-              marginTop: 22 * scale,
-              fontFamily: FONT_FAMILY,
-              fontSize: 21 * scale,
-              color: BRAND.inkSoft,
-              opacity: springEnter({frame, fps, delay: FIRST_BAR + 24, damping: 200}),
-            }}
-          >
-            Opportunities surfaced automatically &middot; nothing left buried in a thread
           </div>
-        </div>
-      </AbsoluteFill>
+        </AbsoluteFill>
+      </AppShell>
     </Scene>
   );
 };

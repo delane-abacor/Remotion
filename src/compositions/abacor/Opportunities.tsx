@@ -1,62 +1,71 @@
 import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+import {INK, LS, S, T, W} from '../../design/tokens';
+import {ABACOR_EASE, abacorSpring, riseIn, useDesignScale} from '../../design/motion';
 import {
-  AbsoluteFill,
-  Easing,
-  interpolate,
-  useCurrentFrame,
-  useVideoConfig,
-} from 'remotion';
-import {BRAND} from '../../brand';
-import {Card, Scene, Sfx, SparkIcon, StepLabel} from '../../components/ui';
+  MatteCard,
+  Meter,
+  PanelHeader,
+  RowGlyph,
+  Scene,
+  SectionLabel,
+  Sfx,
+  Tag,
+  text,
+} from '../../components/ui';
+import {AppShell} from '../../components/AppShell';
 import {SFX, SFX_VOLUME} from '../../sfx';
-import {DISPLAY_FAMILY, FONT_FAMILY} from '../../fonts';
-import {springEnter} from '../../lib/animation';
-import {useScale} from '../../lib/layout';
 
-/** SCENE 3 - detected opportunities populate the pipeline, with a running total. */
+/**
+ * SCENE 3 - the opportunities land in the pipeline.
+ *
+ * Orange budget: the meter is the only orange. The stat figure is ink, per the
+ * system - a stat value is 26px Kraftig ink, never the accent. Sources are
+ * neutral tags.
+ *
+ * Rows stagger 2 frames (67ms), close to the system's 30ms in-product value
+ * and still legible at 30fps.
+ */
 
 const OPPORTUNITIES = [
-  {title: 'Entity structuring - second clinic', source: 'Email + Meeting', value: 12000},
+  {
+    title: 'Entity structuring for the second clinic',
+    source: 'Email, meeting',
+    value: 12000,
+  },
   {title: 'Worker classification review', source: 'Email', value: 8500},
   {title: '401(k) plan advisory', source: 'Meeting', value: 6000},
-  {title: 'Buy vs. lease analysis - $1.4M building', source: 'Meeting', value: 15000},
+  {title: 'Buy or lease analysis on the building', source: 'Meeting', value: 15000},
 ];
 
 const TOTAL = OPPORTUNITIES.reduce((sum, o) => sum + o.value, 0);
+/** The firm's target for the quarter, so the meter has something to fill. */
+const TARGET = 60000;
 
 const money = (n: number) => '$' + Math.round(n).toLocaleString('en-US');
 
-/** Frames between consecutive rows landing. */
-const ROW_STAGGER = 5;
-const FIRST_ROW = 6;
+const ROW_STAGGER = 2;
+const FIRST_ROW = 8;
+/** Numbers count up over 20 frames and land on the real value. */
+const COUNT_FRAMES = 20;
 
 export const Opportunities: React.FC<{durationInFrames: number}> = ({
   durationInFrames,
 }) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const scale = useScale();
+  const s = useDesignScale();
 
-  const labelIn = springEnter({frame, fps, damping: 200, stiffness: 90});
-  const cardIn = springEnter({frame, fps, delay: 2, damping: 200, stiffness: 80});
+  const labelIn = abacorSpring({frame, fps});
+  const cardIn = abacorSpring({frame, fps, delay: 2});
 
-  // The total counts up as each row lands, so the number and the list agree.
-  const landed = OPPORTUNITIES.reduce((sum, o, i) => {
-    const t = interpolate(
-      frame,
-      [FIRST_ROW + i * ROW_STAGGER, FIRST_ROW + i * ROW_STAGGER + 16],
-      [0, 1],
-      {
-        extrapolateLeft: 'clamp',
-        extrapolateRight: 'clamp',
-        easing: Easing.out(Easing.cubic),
-      },
-    );
-    return sum + o.value * t;
-  }, 0);
-
-  // A tick as each row lands, then a chime once the total has finished counting.
-  const TOTAL_AT = FIRST_ROW + OPPORTUNITIES.length * ROW_STAGGER + 6;
+  const countProgress = interpolate(
+    frame,
+    [FIRST_ROW, FIRST_ROW + COUNT_FRAMES],
+    [0, 1],
+    {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: ABACOR_EASE},
+  );
+  const counted = TOTAL * countProgress;
 
   return (
     <Scene durationInFrames={durationInFrames}>
@@ -72,163 +81,116 @@ export const Opportunities: React.FC<{durationInFrames: number}> = ({
       ))}
       <Sfx
         src={SFX.detect}
-        at={TOTAL_AT}
+        at={FIRST_ROW + COUNT_FRAMES}
         durationInFrames={18}
         volume={SFX_VOLUME.detect * 0.85}
         name="Total"
       />
-      <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
-        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
-          <StepLabel step="03" title="Opportunities" scale={scale} progress={labelIn} />
 
-          <Card scale={scale} width={1180} progress={cardIn} padding={0}>
-            {/* Header with the running total */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: `${26 * scale}px ${38 * scale}px`,
-                borderBottom: `${1.5 * scale}px solid ${BRAND.lineSoft}`,
-              }}
-            >
-              <div style={{display: 'flex', alignItems: 'center', gap: 12 * scale}}>
-                <SparkIcon size={23 * scale} color={BRAND.orange} />
-                <span
-                  style={{
-                    fontFamily: FONT_FAMILY,
-                    fontWeight: 600,
-                    fontSize: 27 * scale,
-                    color: BRAND.navy,
-                  }}
-                >
-                  Opportunity pipeline
-                </span>
-              </div>
-              <div style={{textAlign: 'right'}}>
-                <div
-                  style={{
-                    fontFamily: FONT_FAMILY,
-                    fontSize: 16 * scale,
-                    letterSpacing: 1.6 * scale,
-                    textTransform: 'uppercase',
-                    color: BRAND.muted,
-                    marginBottom: 2 * scale,
-                  }}
-                >
-                  Identified value
-                </div>
-                <div
-                  style={{
-                    fontFamily: DISPLAY_FAMILY,
-                    fontWeight: 700,
-                    fontSize: 34 * scale,
-                    color: BRAND.orange,
-                    fontVariantNumeric: 'tabular-nums',
-                  }}
-                >
-                  {money(landed)}
-                </div>
-              </div>
+      <AppShell activeRail={3}>
+        <AbsoluteFill
+          style={{
+            padding: S.s8 * s,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {/* Label and card share a column so the label aligns to the card edge. */}
+          <div style={{width: 1120 * s}}>
+            <div style={{marginBottom: S.s5 * s}}>
+              <SectionLabel progress={labelIn}>Opportunities</SectionLabel>
             </div>
 
-            {/* Rows */}
-            <div>
-              {OPPORTUNITIES.map((o, i) => {
-                const rowIn = springEnter({
-                  frame,
-                  fps,
-                  delay: FIRST_ROW + i * ROW_STAGGER,
-                  damping: 17,
-                  stiffness: 120,
-                });
-
-                return (
-                  <div
-                    key={o.title}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 20 * scale,
-                      padding: `${23 * scale}px ${38 * scale}px`,
-                      borderBottom:
-                        i < OPPORTUNITIES.length - 1
-                          ? `${1.5 * scale}px solid ${BRAND.lineSoft}`
-                          : 'none',
-                      opacity: rowIn,
-                      transform: `translateX(${(1 - rowIn) * 46 * scale}px)`,
-                    }}
-                  >
+            <MatteCard width={1120} progress={cardIn}>
+              <PanelHeader
+                title="Pipeline"
+                right={
+                  <div style={{minWidth: 220 * s}}>
                     <div
                       style={{
-                        width: 10 * scale,
-                        height: 10 * scale,
-                        borderRadius: 999,
-                        background: BRAND.orange,
-                        flexShrink: 0,
-                      }}
-                    />
-                    <div style={{flex: 1, minWidth: 0}}>
-                      <div
-                        style={{
-                          fontFamily: FONT_FAMILY,
-                          fontWeight: 600,
-                          fontSize: 24 * scale,
-                          color: BRAND.ink,
-                          marginBottom: 5 * scale,
-                        }}
-                      >
-                        {o.title}
-                      </div>
-                      <div
-                        style={{
-                          fontFamily: FONT_FAMILY,
-                          fontSize: 18 * scale,
-                          color: BRAND.muted,
-                        }}
-                      >
-                        Source: {o.source}
-                      </div>
-                    </div>
-                    <div
-                      style={{
-                        fontFamily: DISPLAY_FAMILY,
-                        fontWeight: 600,
-                        fontSize: 27 * scale,
-                        color: BRAND.navy,
-                        fontVariantNumeric: 'tabular-nums',
+                        display: 'flex',
+                        alignItems: 'baseline',
+                        justifyContent: 'flex-end',
+                        gap: S.s1 * s,
+                        marginBottom: S.s2 * s,
                       }}
                     >
-                      {money(o.value)}
+                      <span
+                        style={{
+                          ...text(s, T.t26, W.kraftig, INK.base),
+                          letterSpacing: LS.stat * T.t26 * s,
+                          fontVariantNumeric: 'tabular-nums',
+                        }}
+                      >
+                        {money(counted)}
+                      </span>
+                      <span style={text(s, T.t12, W.buch, INK.a45)}>
+                        of {money(TARGET)}
+                      </span>
                     </div>
+                    <Meter progress={(counted / TARGET) * 1} />
                   </div>
-                );
-              })}
-            </div>
-          </Card>
+                }
+              />
 
-          {/* Footnote total, appears once every row has landed. */}
-          <div
-            style={{
-              marginTop: 22 * scale,
-              alignSelf: 'flex-end',
-              fontFamily: FONT_FAMILY,
-              fontSize: 21 * scale,
-              color: BRAND.inkSoft,
-              opacity: springEnter({
-                frame,
-                fps,
-                delay: TOTAL_AT,
-                damping: 200,
-              }),
-            }}
-          >
-            {OPPORTUNITIES.length} opportunities &middot;{' '}
-            <span style={{fontWeight: 700, color: BRAND.navy}}>{money(TOTAL)}</span> added
-            to the pipeline
+              <div>
+                {OPPORTUNITIES.map((o, i) => {
+                  const p = abacorSpring({
+                    frame,
+                    fps,
+                    delay: FIRST_ROW + i * ROW_STAGGER,
+                  });
+
+                  return (
+                    <div
+                      key={o.title}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: S.s3 * s,
+                        padding: `${S.s3 * s}px ${S.s4 * s}px`,
+                        borderBottom:
+                          i < OPPORTUNITIES.length - 1
+                            ? `${1 * s}px solid ${INK.a08}`
+                            : 'none',
+                        ...riseIn(p, 8 * s),
+                      }}
+                    >
+                      <RowGlyph label={String(i + 1)} />
+                      <div style={{flex: 1, minWidth: 0}}>
+                        <div style={{marginBottom: S.s1 * s}}>
+                          <span style={text(s, T.t14, W.kraftig, INK.base)}>
+                            {o.title}
+                          </span>
+                        </div>
+                        <Tag>{o.source}</Tag>
+                      </div>
+                      <span
+                        style={{
+                          ...text(s, T.t14, W.kraftig, INK.base),
+                          fontVariantNumeric: 'tabular-nums',
+                        }}
+                      >
+                        {money(o.value)}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </MatteCard>
+
+            <div
+              style={{
+                marginTop: S.s4 * s,
+                ...text(s, T.t12, W.buch, INK.a45),
+                opacity: abacorSpring({frame, fps, delay: FIRST_ROW + COUNT_FRAMES}),
+              }}
+            >
+              {OPPORTUNITIES.length} opportunities from 1 email thread and 1 meeting.
+            </div>
           </div>
-        </div>
-      </AbsoluteFill>
+        </AbsoluteFill>
+      </AppShell>
     </Scene>
   );
 };

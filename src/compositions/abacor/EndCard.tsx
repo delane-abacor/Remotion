@@ -1,26 +1,15 @@
 import React from 'react';
-import {
-  AbsoluteFill,
-  Easing,
-  interpolate,
-  useCurrentFrame,
-  useVideoConfig,
-} from 'remotion';
-import {BRAND, TITLE} from '../../brand';
+import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
+import {FONT, INK, LH, ORANGE, S, T_VIDEO, W} from '../../design/tokens';
+import {abacorSpring, riseIn, useDesignScale} from '../../design/motion';
 import {Scene} from '../../components/ui';
-import {FONT_FAMILY} from '../../fonts';
-import {springEnter} from '../../lib/animation';
-import {useScale} from '../../lib/layout';
 
 /**
  * FINAL SCENE - the call to action.
  *
- * A short orange rule draws out, then the line rises into place and holds
- * through the last frame so an editor has something to cut on. The domain
- * takes the accent colour so the eye lands on where to go.
- *
- * Set in the same face, weight and tracking as the typed title card (see
- * TITLE in src/brand.ts) - only the size differs.
+ * Orange budget: the address, which is the one thing the viewer is meant to
+ * act on. Everything else is ink. Holds through the last frame so an editor
+ * has something to cut on.
  */
 export const EndCard: React.FC<{
   durationInFrames: number;
@@ -29,56 +18,40 @@ export const EndCard: React.FC<{
 }> = ({durationInFrames, lead, url}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const scale = useScale();
+  const s = useDesignScale();
 
-  const ruleIn = interpolate(frame, [3, 16], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-    easing: Easing.out(Easing.cubic),
-  });
-  const leadIn = springEnter({frame, fps, delay: 8, damping: 200, stiffness: 95});
-  const urlIn = springEnter({frame, fps, delay: 14, damping: 200, stiffness: 95});
-
-  const rise = (progress: number) => ({
-    opacity: progress,
-    transform: `translateY(${(1 - progress) * 18 * scale}px)`,
-  });
+  const leadIn = abacorSpring({frame, fps, delay: 4});
+  const urlIn = abacorSpring({frame, fps, delay: 10});
 
   return (
     <Scene durationInFrames={durationInFrames} hold>
       <AbsoluteFill
-        style={{
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection: 'column',
-        }}
+        style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'column'}}
       >
         <div
           style={{
-            width: 132 * scale,
-            height: 4 * scale,
-            background: BRAND.orange,
-            borderRadius: 999,
-            marginBottom: 46 * scale,
-            transform: `scaleX(${ruleIn})`,
-          }}
-        />
-
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'baseline',
-            gap: 0.28 * TITLE.size * scale,
-            fontFamily: FONT_FAMILY,
-            fontWeight: TITLE.weight,
-            fontSize: 84 * scale,
-            lineHeight: 1.1,
-            letterSpacing: TITLE.tracking * scale,
-            whiteSpace: 'pre',
+            fontFamily: FONT,
+            fontWeight: W.buch,
+            fontSize: T_VIDEO.lead * s,
+            lineHeight: LH.tight,
+            color: INK.a55,
+            marginBottom: S.s4 * s,
+            ...riseIn(leadIn, 8 * s),
           }}
         >
-          <span style={{color: TITLE.color, ...rise(leadIn)}}>{lead}</span>
-          <span style={{color: BRAND.orange, ...rise(urlIn)}}>{url}</span>
+          {lead}
+        </div>
+        <div
+          style={{
+            fontFamily: FONT,
+            fontWeight: W.kraftig,
+            fontSize: T_VIDEO.display * s,
+            lineHeight: LH.tight,
+            color: ORANGE.base,
+            ...riseIn(urlIn, 8 * s),
+          }}
+        >
+          {url}
         </div>
       </AbsoluteFill>
     </Scene>

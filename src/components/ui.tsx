@@ -1,34 +1,38 @@
 import React from 'react';
+import {AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame} from 'remotion';
 import {
-  AbsoluteFill,
-  Audio,
-  Easing,
-  Sequence,
-  interpolate,
-  staticFile,
-  useCurrentFrame,
-} from 'remotion';
-import {BRAND} from '../brand';
-import {enterExit, springEnter} from '../lib/animation';
-import {FONT_FAMILY} from '../fonts';
+  FONT,
+  INK,
+  LH,
+  LS,
+  METER,
+  ORANGE,
+  R,
+  S,
+  SHADOW,
+  T,
+  W,
+  WHITE,
+} from '../design/tokens';
+import {D, abacorSpring, linearFade, riseIn, useDesignScale} from '../design/motion';
 
 /**
- * Small building blocks shared by the promo scenes. They intentionally mimic
- * the product's real surface treatment: white cards, hairline borders,
- * generous radius, orange as the only accent.
+ * Abacor components, built to the measured specs in the design system's
+ * `references/components.md`. Sizes are in 1440x900 design units; every
+ * component multiplies by useDesignScale() so the same code is correct at
+ * 1080p and 4K.
  */
 
+/* ------------------------------------------------------------------ audio */
+
 /**
- * A one-shot sound effect placed at a specific frame of the scene it sits in.
- *
- * `at` is rounded because Sequence needs a whole frame and several scenes
- * derive their timings from fractional stagger values.
+ * A one-shot sound effect at a specific frame of the scene it sits in.
+ * `at` is rounded because Sequence needs a whole frame.
  */
 export const Sfx: React.FC<{
   src: string;
   at: number;
   volume?: number;
-  /** Long enough for the file to finish; audio is trimmed, never looped. */
   durationInFrames?: number;
   name?: string;
 }> = ({src, at, volume = 0.5, durationInFrames = 45, name}) => (
@@ -41,12 +45,16 @@ export const Sfx: React.FC<{
   </Sequence>
 );
 
+/* ------------------------------------------------------------------ scene */
+
 /**
- * Wraps a scene so it fades in and fully out within its own Sequence.
+ * Wraps a scene so it fades in and out within its own Sequence.
  *
- * Pass `hold` for a final scene that should stay on screen through the last
- * frame instead of fading away - an end card that dissolves to an empty page
- * gives an editor nothing to cut on.
+ * The fade is LINEAR: the system is explicit that easing an opacity-only fade
+ * reads as a mistake at 30fps. Scene crossfades run 12 frames (400ms).
+ *
+ * `hold` keeps a final scene on screen through the last frame instead of
+ * dissolving to an empty page.
  */
 export const Scene: React.FC<{
   durationInFrames: number;
@@ -54,118 +62,254 @@ export const Scene: React.FC<{
   children: React.ReactNode;
 }> = ({durationInFrames, hold = false, children}) => {
   const frame = useCurrentFrame();
-
-  const fadeIn = interpolate(frame, [0, 12], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-    easing: Easing.out(Easing.cubic),
-  });
+  const last = Math.max(durationInFrames - 1, 1);
 
   const opacity = hold
-    ? fadeIn
-    : enterExit({frame, durationInFrames, enterFrames: 12, exitFrames: 12});
+    ? linearFade(frame, [0, D.scene], [0, 1])
+    : linearFade(frame, [0, D.scene, last - D.scene, last], [0, 1, 1, 0]);
 
   return <AbsoluteFill style={{opacity}}>{children}</AbsoluteFill>;
 };
 
-/** Section label above a scene's card, e.g. "STEP 01 - EMAIL". */
-export const StepLabel: React.FC<{
-  step: string;
-  title: string;
-  scale: number;
-  progress: number;
-}> = ({step, title, scale, progress}) => (
-  <div
-    style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: 14 * scale,
-      marginBottom: 26 * scale,
-      opacity: progress,
-      transform: `translateY(${(1 - progress) * 16 * scale}px)`,
-    }}
-  >
-    <span
-      style={{
-        fontFamily: FONT_FAMILY,
-        fontWeight: 700,
-        fontSize: 17 * scale,
-        letterSpacing: 2.2 * scale,
-        color: BRAND.orange,
-      }}
-    >
-      {step}
-    </span>
-    <span
-      style={{width: 22 * scale, height: 2 * scale, background: BRAND.orangeTintEdge}}
-    />
-    <span
-      style={{
-        fontFamily: FONT_FAMILY,
-        fontWeight: 600,
-        fontSize: 17 * scale,
-        letterSpacing: 2.2 * scale,
-        color: BRAND.inkSoft,
-        textTransform: 'uppercase',
-      }}
-    >
-      {title}
-    </span>
-  </div>
-);
+/* ------------------------------------------------------------- typography */
 
-/** White surface with a hairline border and soft shadow. */
-export const Card: React.FC<{
-  scale: number;
-  width: number;
-  progress?: number;
-  padding?: number;
-  style?: React.CSSProperties;
-  children: React.ReactNode;
-}> = ({scale, width, progress = 1, padding = 40, style, children}) => (
-  <div
-    style={{
-      position: 'relative',
-      width: width * scale,
-      background: BRAND.card,
-      borderRadius: 22 * scale,
-      border: `${1.5 * scale}px solid ${BRAND.line}`,
-      boxShadow: `0 ${2 * scale}px ${4 * scale}px rgba(11, 32, 41, 0.06), 0 ${
-        30 * scale
-      }px ${64 * scale}px rgba(11, 32, 41, 0.20)`,
-      padding: padding * scale,
-      opacity: progress,
-      transform: `translateY(${(1 - progress) * 34 * scale}px) scale(${interpolate(
-        progress,
-        [0, 1],
-        [0.975, 1],
-      )})`,
-      overflow: 'hidden',
-      ...style,
-    }}
-  >
-    {children}
-  </div>
-);
+/** 11px Buch, uppercase, 4% tracking, ink-45. The only uppercase in the system. */
+export const SectionLabel: React.FC<{children: React.ReactNode; progress?: number}> = ({
+  children,
+  progress = 1,
+}) => {
+  const s = useDesignScale();
+
+  return (
+    <div
+      style={{
+        fontFamily: FONT,
+        fontWeight: W.buch,
+        fontSize: T.t11 * s,
+        letterSpacing: LS.label * T.t11 * s,
+        textTransform: 'uppercase',
+        color: INK.a45,
+        ...riseIn(progress, 8 * s),
+      }}
+    >
+      {children}
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------ cards */
 
 /**
- * SCAN BEAM
- * A horizontal line that sweeps top -> bottom across its parent, leaving a
- * faint tinted wash behind it. `progress` is 0 -> 1 over the scan.
+ * THE MATTE INSET CARD - the signature Abacor container.
+ *
+ * Outer shell at ink-03 with an ink-08 border OUTSIDE, 4px of padding, and a
+ * white panel with its own ink-08 border INSIDE. The 4px gap is doing the
+ * work: small enough that the layers read as one object, large enough that the
+ * tint at the edge gives depth. A single flat bordered card is not the same
+ * thing and looks noticeably cheaper.
  */
-export const ScanBeam: React.FC<{scale: number; progress: number}> = ({
-  scale,
-  progress,
-}) => {
+export const MatteCard: React.FC<{
+  width: number;
+  progress?: number;
+  style?: React.CSSProperties;
+  panelStyle?: React.CSSProperties;
+  children: React.ReactNode;
+}> = ({width, progress = 1, style, panelStyle, children}) => {
+  const s = useDesignScale();
+
+  return (
+    <div
+      style={{
+        width: width * s,
+        background: INK.a03,
+        border: `${1 * s}px solid ${INK.a08}`,
+        borderRadius: R.r12 * s,
+        padding: S.s1 * s,
+        ...riseIn(progress, 8 * s),
+        ...style,
+      }}
+    >
+      <div
+        style={{
+          background: WHITE.base,
+          border: `${1 * s}px solid ${INK.a08}`,
+          borderRadius: R.r8 * s,
+          overflow: 'hidden',
+          ...panelStyle,
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------- tags */
+
+/** 10px Kraftig pill. Neutral by default; `attention` is the orange tint. */
+export const Tag: React.FC<{
+  children: React.ReactNode;
+  attention?: boolean;
+}> = ({children, attention = false}) => {
+  const s = useDesignScale();
+
+  return (
+    <span
+      style={{
+        display: 'inline-block',
+        padding: `${2 * s}px ${6 * s}px`,
+        borderRadius: R.r4 * s,
+        fontFamily: FONT,
+        fontWeight: W.kraftig,
+        fontSize: T.t10 * s,
+        letterSpacing: LS.tag * T.t10 * s,
+        lineHeight: LH.tight,
+        background: attention ? ORANGE.a10 : INK.a06,
+        color: attention ? ORANGE.base : INK.a60,
+        whiteSpace: 'nowrap',
+      }}
+    >
+      {children}
+    </span>
+  );
+};
+
+/* ------------------------------------------------------------------ meter */
+
+/**
+ * The three-stop meter. Solid, washed at 47.5%, solid at 70%, plus the glow.
+ * A two-stop fade loses the detail that makes it recognisable.
+ *
+ * Width animates with ABACOR_EASE. Never spring a progress bar.
+ */
+export const Meter: React.FC<{progress: number}> = ({progress}) => {
+  const s = useDesignScale();
+
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: 2 * s,
+        background: METER.track,
+        borderRadius: R.pill,
+      }}
+    >
+      <div
+        style={{
+          width: `${Math.max(0, Math.min(1, progress)) * 100}%`,
+          height: '100%',
+          background: METER.orange,
+          boxShadow: METER.glowOrange,
+          borderRadius: R.pill,
+        }}
+      />
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------ toast */
+
+/**
+ * Confirmation toast. 24px from the bottom-right of the content area, with an
+ * orange circular tick, a 13px Kraftig title and a 12px Buch subline.
+ *
+ * This is the one orange element in a scan scene, and it only appears once the
+ * beam has finished, so the budget is never spent twice at the same moment.
+ */
+export const Toast: React.FC<{
+  title: string;
+  sub: string;
+  frame: number;
+  fps: number;
+  delay: number;
+}> = ({title, sub, frame, fps, delay}) => {
+  const s = useDesignScale();
+  const p = abacorSpring({frame, fps, delay});
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        right: S.s6 * s,
+        bottom: S.s6 * s,
+        display: 'flex',
+        alignItems: 'center',
+        gap: S.s3 * s,
+        padding: `${14 * s}px ${S.s4 * s}px`,
+        borderRadius: R.r12 * s,
+        background: WHITE.base,
+        border: `${1 * s}px solid ${INK.a08}`,
+        boxShadow: SHADOW.menu,
+        ...riseIn(p, 8 * s),
+      }}
+    >
+      <div
+        style={{
+          width: S.s6 * s,
+          height: S.s6 * s,
+          borderRadius: R.pill,
+          background: ORANGE.base,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+        }}
+      >
+        <svg width={14 * s} height={14 * s} viewBox="0 0 16 16" fill="none">
+          <path
+            d="M3.5 8.4l3 3 6-6.4"
+            stroke={WHITE.base}
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+      <div style={{display: 'flex', flexDirection: 'column', gap: 2 * s}}>
+        <span
+          style={{
+            fontFamily: FONT,
+            fontWeight: W.kraftig,
+            fontSize: T.t13 * s,
+            lineHeight: LH.tight,
+            color: INK.base,
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {title}
+        </span>
+        <span
+          style={{
+            fontFamily: FONT,
+            fontWeight: W.buch,
+            fontSize: T.t12 * s,
+            lineHeight: LH.tight,
+            color: INK.a55,
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {sub}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------- scan */
+
+/**
+ * The scan beam. A 1px orange line sweeping the panel, leaving a faint tint
+ * behind it. This is the single orange element while it is on screen.
+ */
+export const ScanBeam: React.FC<{progress: number}> = ({progress}) => {
+  const s = useDesignScale();
   if (progress <= 0 || progress >= 1) {
     return null;
   }
-
   const y = progress * 100;
 
   return (
     <AbsoluteFill style={{pointerEvents: 'none'}}>
-      {/* Wash over the part already scanned. */}
       <div
         style={{
           position: 'absolute',
@@ -173,19 +317,18 @@ export const ScanBeam: React.FC<{scale: number; progress: number}> = ({
           right: 0,
           top: 0,
           height: `${y}%`,
-          background: `linear-gradient(180deg, rgba(250,100,0,0.00) 0%, rgba(250,100,0,0.05) 70%, rgba(250,100,0,0.10) 100%)`,
+          background: ORANGE.a05,
         }}
       />
-      {/* The beam itself. */}
       <div
         style={{
           position: 'absolute',
           left: 0,
           right: 0,
           top: `${y}%`,
-          height: 3 * scale,
-          background: `linear-gradient(90deg, rgba(250,100,0,0) 0%, ${BRAND.orange} 18%, ${BRAND.orange} 82%, rgba(250,100,0,0) 100%)`,
-          boxShadow: `0 0 ${26 * scale}px ${BRAND.orange}`,
+          height: 2 * s,
+          background: ORANGE.base,
+          boxShadow: METER.glowOrange,
         }}
       />
     </AbsoluteFill>
@@ -193,31 +336,26 @@ export const ScanBeam: React.FC<{scale: number; progress: number}> = ({
 };
 
 /**
- * HIGHLIGHT
- * Inline text whose tinted background wipes in once the scan beam has passed.
- * `at` is the 0 -> 1 scan position where this phrase gets picked up.
+ * A phrase the scan has picked up. The tint wipes in as the beam passes,
+ * using the attention-tag treatment rather than a second solid orange.
  */
 export const Highlight: React.FC<{
   children: React.ReactNode;
   scanProgress: number;
   at: number;
-  scale: number;
-}> = ({children, scanProgress, at, scale}) => {
-  const fill = interpolate(scanProgress, [at, at + 0.1], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-    easing: Easing.out(Easing.cubic),
-  });
+}> = ({children, scanProgress, at}) => {
+  const s = useDesignScale();
+  const fill = linearFade(scanProgress, [at, at + 0.08], [0, 1]);
 
   return (
-    // The tint sits INSIDE the span's own padding rather than overhanging it.
-    // An absolutely positioned box that spills outside paints on top of the
-    // next character, which silently swallows any punctuation that follows.
+    // The tint sits inside the span's own padding. An absolutely positioned
+    // box that spills outside paints over the next character and swallows any
+    // punctuation that follows.
     <span
       style={{
         position: 'relative',
         display: 'inline-block',
-        padding: `${3 * scale}px ${5 * scale}px`,
+        padding: `${2 * s}px ${S.s1 * s}px`,
         whiteSpace: 'nowrap',
       }}
     >
@@ -225,9 +363,8 @@ export const Highlight: React.FC<{
         style={{
           position: 'absolute',
           inset: 0,
-          background: BRAND.orangeTint,
-          border: `${1.5 * scale}px solid ${BRAND.orangeTintEdge}`,
-          borderRadius: 7 * scale,
+          background: ORANGE.a10,
+          borderRadius: R.r4 * s,
           transformOrigin: 'left center',
           transform: `scaleX(${fill})`,
         }}
@@ -235,8 +372,8 @@ export const Highlight: React.FC<{
       <span
         style={{
           position: 'relative',
-          fontWeight: fill > 0.5 ? 600 : 400,
-          color: fill > 0.5 ? BRAND.ink : 'inherit',
+          fontWeight: fill > 0.5 ? W.kraftig : W.buch,
+          color: fill > 0.5 ? ORANGE.deep : 'inherit',
         }}
       >
         {children}
@@ -245,94 +382,93 @@ export const Highlight: React.FC<{
   );
 };
 
-/** Floating "Opportunity detected" pill. */
-export const DetectChip: React.FC<{
-  label: string;
-  scale: number;
-  frame: number;
-  fps: number;
-  delay: number;
-  style?: React.CSSProperties;
-}> = ({label, scale, frame, fps, delay, style}) => {
-  const pop = springEnter({frame, fps, delay, damping: 13, stiffness: 150});
+/* ------------------------------------------------------------------- rows */
+
+/** 28px rounded-square glyph. A glyph means a record about to be created. */
+export const RowGlyph: React.FC<{label: string}> = ({label}) => {
+  const s = useDesignScale();
 
   return (
     <div
       style={{
-        position: 'absolute',
+        width: 28 * s,
+        height: 28 * s,
+        borderRadius: R.r6 * s,
+        background: INK.a05,
         display: 'flex',
         alignItems: 'center',
-        gap: 12 * scale,
-        padding: `${13 * scale}px ${22 * scale}px`,
-        background: BRAND.orange,
-        borderRadius: 999,
-        boxShadow: `0 ${14 * scale}px ${34 * scale}px rgba(250, 100, 0, 0.35)`,
-        opacity: pop,
-        transform: `scale(${interpolate(pop, [0, 1], [0.7, 1])})`,
-        ...style,
+        justifyContent: 'center',
+        fontFamily: FONT,
+        fontWeight: W.kraftig,
+        fontSize: T.t12 * s,
+        color: INK.a60,
+        flexShrink: 0,
       }}
     >
-      <SparkIcon size={19 * scale} color="#FFFFFF" />
-      <span
-        style={{
-          fontFamily: FONT_FAMILY,
-          fontWeight: 600,
-          fontSize: 21 * scale,
-          color: '#FFFFFF',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {label}
-      </span>
+      {label}
     </div>
   );
 };
 
-/** Four-point sparkle, echoing the product's "Enhanced Notes" affordance. */
-export const SparkIcon: React.FC<{size: number; color: string}> = ({size, color}) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    style={{display: 'block'}}
-  >
-    <path
-      d="M12 1.5c.9 4.6 2.2 6.6 6.8 7.5-4.6.9-5.9 2.9-6.8 7.5-.9-4.6-2.2-6.6-6.8-7.5 4.6-.9 5.9-2.9 6.8-7.5Z"
-      fill={color}
-    />
-    <path
-      d="M18.8 15c.45 2.3 1.05 3.2 3.2 3.6-2.15.45-2.75 1.35-3.2 3.6-.45-2.25-1.05-3.15-3.2-3.6 2.15-.4 2.75-1.3 3.2-3.6Z"
-      fill={color}
-      opacity={0.75}
-    />
-  </svg>
-);
+/** Panel header: title left, optional right slot, bottom hairline. */
+export const PanelHeader: React.FC<{
+  title: string;
+  right?: React.ReactNode;
+  sub?: string;
+}> = ({title, right, sub}) => {
+  const s = useDesignScale();
 
-/** Rounded monogram used instead of any human imagery. */
-export const Monogram: React.FC<{
-  text: string;
-  size: number;
-  background: string;
-  color: string;
-}> = ({text, size, background, color}) => (
-  <div
-    style={{
-      width: size,
-      height: size,
-      borderRadius: 10,
-      background,
-      color,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: FONT_FAMILY,
-      fontWeight: 700,
-      fontSize: size * 0.4,
-      letterSpacing: 0.5,
-      flexShrink: 0,
-    }}
-  >
-    {text}
-  </div>
-);
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: sub ? 'flex-start' : 'center',
+        justifyContent: 'space-between',
+        padding: `${S.s4 * s}px`,
+        borderBottom: `${1 * s}px solid ${INK.a08}`,
+      }}
+    >
+      <div style={{display: 'flex', flexDirection: 'column', gap: S.s1 * s}}>
+        <span
+          style={{
+            fontFamily: FONT,
+            fontWeight: W.kraftig,
+            fontSize: T.t18 * s,
+            lineHeight: LH.tight,
+            color: INK.base,
+          }}
+        >
+          {title}
+        </span>
+        {sub ? (
+          <span
+            style={{
+              fontFamily: FONT,
+              fontWeight: W.buch,
+              fontSize: T.t12 * s,
+              lineHeight: LH.default,
+              color: INK.a55,
+            }}
+          >
+            {sub}
+          </span>
+        ) : null}
+      </div>
+      {right}
+    </div>
+  );
+};
+
+/** Text style helpers so scenes never restate the ramp inline. */
+export const text = (
+  s: number,
+  size: number,
+  weight: number = W.buch,
+  color: string = INK.base,
+): React.CSSProperties => ({
+  fontFamily: FONT,
+  fontWeight: weight,
+  fontSize: size * s,
+  lineHeight: LH.default,
+  color,
+});

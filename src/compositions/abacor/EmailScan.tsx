@@ -1,102 +1,90 @@
 import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+import {INK, LH, S, T, W} from '../../design/tokens';
+import {ABACOR_EASE, abacorSpring, useDesignScale} from '../../design/motion';
 import {
-  AbsoluteFill,
-  Easing,
-  interpolate,
-  useCurrentFrame,
-  useVideoConfig,
-} from 'remotion';
-import {BRAND} from '../../brand';
-import {
-  Card,
-  DetectChip,
   Highlight,
-  Monogram,
+  MatteCard,
+  PanelHeader,
+  RowGlyph,
   ScanBeam,
   Scene,
+  SectionLabel,
   Sfx,
-  StepLabel,
+  Toast,
+  text,
 } from '../../components/ui';
+import {AppShell} from '../../components/AppShell';
 import {SFX, SFX_VOLUME} from '../../sfx';
-import {FONT_FAMILY} from '../../fonts';
-import {springEnter} from '../../lib/animation';
-import {useScale} from '../../lib/layout';
-
-/** SCENE 1 - an email thread is read and an opportunity is spotted. */
-
-type Message = {
-  from: string;
-  initials: string;
-  time: string;
-  lines: React.ReactNode[];
-};
 
 /**
- * Scan timings in frames, and where along the sweep each phrase lights up.
- * The beam, the highlights and their sounds all read from these, so the audio
- * cannot drift from the picture.
+ * SCENE 1 - an email thread is read.
+ *
+ * Orange budget: the beam while it sweeps, then the toast's tick once the beam
+ * is gone. Never both at the same moment. The picked-up phrases use the
+ * attention-tag tint, which is a wash rather than a second solid orange.
  */
+
 const SCAN_FROM = 6;
-const SCAN_TO = 42;
-const HIGHLIGHT_AT = [0.2, 0.46, 0.72];
-const DETECT_AT = 44;
+const SCAN_TO = 40;
+const HIGHLIGHT_AT = [0.18, 0.46, 0.74];
+const TOAST_AT = 44;
 
 export const EmailScan: React.FC<{durationInFrames: number}> = ({durationInFrames}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const scale = useScale();
+  const s = useDesignScale();
 
-  const cardIn = springEnter({frame, fps, delay: 2, damping: 200, stiffness: 80});
-  const labelIn = springEnter({frame, fps, damping: 200, stiffness: 90});
+  const labelIn = abacorSpring({frame, fps});
+  const cardIn = abacorSpring({frame, fps, delay: 2});
 
-  // The beam sweeps between these frames.
   const scan = interpolate(frame, [SCAN_FROM, SCAN_TO], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
-    easing: Easing.inOut(Easing.quad),
+    easing: ABACOR_EASE,
   });
 
   const hl = (node: React.ReactNode, at: number) => (
-    <Highlight scanProgress={scan} at={at} scale={scale}>
+    <Highlight scanProgress={scan} at={at}>
       {node}
     </Highlight>
   );
 
-  const messages: Message[] = [
+  const emails = [
     {
-      from: 'Tomás R.',
+      from: 'Tomas Rivera',
       initials: 'TR',
       time: '09:14',
       lines: [
         <>
           We signed the lease {hl('for a second clinic', HIGHLIGHT_AT[0]!)} three weeks
-          ago —
+          ago.
         </>,
-        <>doors open in October. Do we need to change anything?</>,
+        <>It opens in October. Does anything need to change?</>,
       ],
     },
     {
-      from: 'Practice Admin',
+      from: 'Practice admin',
       initials: 'PA',
       time: '09:31',
       lines: [
         <>
-          Payroll question too:{' '}
+          Payroll question too.{' '}
           {hl('5 of our 9 therapists are on 1099', HIGHLIGHT_AT[1]!)}
         </>,
-        <>and the PEO just sent over a 401(k) proposal to sign.</>,
+        <>and the PEO sent a 401(k) proposal to sign.</>,
       ],
     },
     {
-      from: 'Tomás R.',
+      from: 'Tomas Rivera',
       initials: 'TR',
       time: '09:48',
       lines: [
         <>
-          Also — the landlord offered to{' '}
+          The landlord also offered to{' '}
           {hl('sell the building for $1.4M.', HIGHLIGHT_AT[2]!)}
         </>,
-        <>Not sure if that is something we should look at.</>,
+        <>Worth looking at?</>,
       ],
     },
   ];
@@ -122,130 +110,88 @@ export const EmailScan: React.FC<{durationInFrames: number}> = ({durationInFrame
       ))}
       <Sfx
         src={SFX.detect}
-        at={DETECT_AT}
+        at={TOAST_AT}
         durationInFrames={18}
         volume={SFX_VOLUME.detect}
-        name="Detected"
+        name="Found"
       />
-      <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
-        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
-          <StepLabel step="01" title="Email thread" scale={scale} progress={labelIn} />
 
-          <Card scale={scale} width={1180} progress={cardIn} padding={0}>
-            {/* Thread header */}
-            <div
-              style={{
-                padding: `${26 * scale}px ${38 * scale}px`,
-                borderBottom: `${1.5 * scale}px solid ${BRAND.lineSoft}`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
-              <div
-                style={{
-                  fontFamily: FONT_FAMILY,
-                  fontWeight: 600,
-                  fontSize: 27 * scale,
-                  color: BRAND.navy,
-                }}
-              >
-                Re: Second clinic + payroll questions
-              </div>
-              <div
-                style={{
-                  fontFamily: FONT_FAMILY,
-                  fontSize: 20 * scale,
-                  color: BRAND.muted,
-                }}
-              >
-                3 messages
-              </div>
+      <AppShell activeRail={1}>
+        <AbsoluteFill
+          style={{
+            padding: S.s8 * s,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {/* Label and card share a column so the label aligns to the card edge. */}
+          <div style={{width: 1120 * s}}>
+            <div style={{marginBottom: S.s5 * s}}>
+              <SectionLabel progress={labelIn}>Email</SectionLabel>
             </div>
 
-            {/* Messages */}
-            <div style={{position: 'relative'}}>
-              {messages.map((m, i) => (
-                <div
-                  key={m.from + i}
-                  style={{
-                    display: 'flex',
-                    gap: 20 * scale,
-                    padding: `${24 * scale}px ${38 * scale}px`,
-                    borderBottom:
-                      i < messages.length - 1
-                        ? `${1.5 * scale}px solid ${BRAND.lineSoft}`
-                        : 'none',
-                  }}
-                >
-                  <Monogram
-                    text={m.initials}
-                    size={44 * scale}
-                    background={i === 1 ? BRAND.orangeTint : '#E9EFF2'}
-                    color={i === 1 ? BRAND.orangeDeep : BRAND.inkSoft}
-                  />
-                  <div style={{flex: 1, minWidth: 0}}>
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'baseline',
-                        gap: 12 * scale,
-                        marginBottom: 9 * scale,
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontFamily: FONT_FAMILY,
-                          fontWeight: 600,
-                          fontSize: 22 * scale,
-                          color: BRAND.ink,
-                        }}
-                      >
-                        {m.from}
-                      </span>
-                      <span
-                        style={{
-                          fontFamily: FONT_FAMILY,
-                          fontSize: 18 * scale,
-                          color: BRAND.muted,
-                        }}
-                      >
-                        {m.time}
-                      </span>
-                    </div>
-                    {m.lines.map((line, li) => (
+            <MatteCard width={1120} progress={cardIn}>
+              <PanelHeader
+                title="Second clinic and payroll questions"
+                right={<span style={text(s, T.t12, W.buch, INK.a45)}>3 emails</span>}
+              />
+
+              <div style={{position: 'relative'}}>
+                {emails.map((email, i) => (
+                  <div
+                    key={email.from + i}
+                    style={{
+                      display: 'flex',
+                      gap: S.s3 * s,
+                      padding: `${S.s3 * s}px ${S.s4 * s}px`,
+                      borderBottom:
+                        i < emails.length - 1 ? `${1 * s}px solid ${INK.a08}` : 'none',
+                    }}
+                  >
+                    <RowGlyph label={email.initials} />
+                    <div style={{flex: 1, minWidth: 0}}>
                       <div
-                        key={li}
                         style={{
-                          fontFamily: FONT_FAMILY,
-                          fontSize: 22 * scale,
-                          lineHeight: 1.75,
-                          color: BRAND.inkSoft,
+                          display: 'flex',
+                          alignItems: 'baseline',
+                          gap: S.s2 * s,
+                          marginBottom: S.s1 * s,
                         }}
                       >
-                        {line}
+                        <span style={text(s, T.t14, W.kraftig, INK.base)}>
+                          {email.from}
+                        </span>
+                        <span style={text(s, T.t12, W.buch, INK.a45)}>{email.time}</span>
                       </div>
-                    ))}
+                      {email.lines.map((line, li) => (
+                        <div
+                          key={li}
+                          style={{
+                            ...text(s, T.t14, W.buch, INK.a70),
+                            lineHeight: LH.default,
+                          }}
+                        >
+                          {line}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
 
-              <ScanBeam scale={scale} progress={scan} />
-            </div>
-          </Card>
+                <ScanBeam progress={scan} />
+              </div>
+            </MatteCard>
 
-          <div style={{position: 'relative', width: '100%'}}>
-            <DetectChip
-              label="Opportunity detected"
-              scale={scale}
+            <Toast
+              title="3 opportunities found"
+              sub="Added to the pipeline"
               frame={frame}
               fps={fps}
-              delay={DETECT_AT}
-              style={{right: 0, top: -28 * scale}}
+              delay={TOAST_AT}
             />
           </div>
-        </div>
-      </AbsoluteFill>
+        </AbsoluteFill>
+      </AppShell>
     </Scene>
   );
 };

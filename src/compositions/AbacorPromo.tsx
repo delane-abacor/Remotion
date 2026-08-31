@@ -1,7 +1,9 @@
 import React from 'react';
 import {AbsoluteFill, Sequence} from 'remotion';
 import {z} from 'zod';
-import {BRAND, BRAND_URL} from '../brand';
+import {PAPER} from '../design/tokens';
+import {D} from '../design/motion';
+import {BRAND_URL} from '../brand';
 import {EmailScan} from './abacor/EmailScan';
 import {EndCard} from './abacor/EndCard';
 import {Intro} from './abacor/Intro';
@@ -13,22 +15,26 @@ import {seconds} from '../video';
 /**
  * ABACOR PROMO
  * ------------
- * A typed title card -> scan an email thread -> scan a meeting note ->
- * populate the opportunity pipeline -> show revenue growth -> end on the call
- * to action.
+ * A typed title card, an email thread read, a meeting note read, the
+ * opportunities landing in the pipeline, what they are worth, then the call to
+ * action. Built to the Abacor design system: one ink, one orange per view,
+ * matte inset cards, Sohne at two weights, motion with no overshoot.
  *
- * Scene lengths are declared once in SCENES below. Change a duration there and
- * everything after it shifts; the composition's total length is derived from
- * the same list, so Root.tsx never needs editing to match.
+ * PACING
+ * The system sets a 45 frame minimum hold once a beat has finished animating,
+ * because dense UI needs reading time. Six beats cannot honour that inside 15
+ * seconds, so there are two registered cuts:
  *
- * No people and no logo appear anywhere - the story is told entirely through
- * the product surface.
+ *   tight  15.0s  every scene holds 20-39 frames, under the minimum
+ *   calm   18.5s  every scene clears 45, as the system asks
+ *
+ * Both render from identical scenes; only the durations differ.
  */
 
 export const abacorPromoSchema = z.object({
-  /** Lead-in on the final scene. Editable live in the Studio sidebar. */
+  /** Lead-in on the final scene. */
   endCardLead: z.string(),
-  /** Destination on the final scene, set in the accent colour. */
+  /** Destination on the final scene, in the accent colour. */
   endCardUrl: z.string(),
 });
 
@@ -39,100 +45,73 @@ export const abacorPromoDefaultProps: AbacorPromoProps = {
   endCardUrl: BRAND_URL,
 };
 
-/**
- * Scene running order and lengths, in seconds. Each entry renders itself so a
- * scene can take its own props without every other scene having to accept them.
- */
-const SCENES = [
-  {
-    id: 'intro',
-    seconds: 3.2,
-    render: (durationInFrames: number) => <Intro durationInFrames={durationInFrames} />,
-  },
-  {
-    id: 'email',
-    seconds: 3.0,
-    render: (durationInFrames: number) => (
-      <EmailScan durationInFrames={durationInFrames} />
-    ),
-  },
-  {
-    id: 'meeting',
-    seconds: 3.0,
-    render: (durationInFrames: number) => (
-      <MeetingScan durationInFrames={durationInFrames} />
-    ),
-  },
-  {
-    id: 'opportunities',
-    seconds: 2.9,
-    render: (durationInFrames: number) => (
-      <Opportunities durationInFrames={durationInFrames} />
-    ),
-  },
-  {
-    id: 'revenue',
-    seconds: 2.7,
-    render: (durationInFrames: number) => (
-      <RevenueGrowth durationInFrames={durationInFrames} />
-    ),
-  },
-  {
-    id: 'end',
-    seconds: 2.2,
-    render: (durationInFrames: number, props: AbacorPromoProps) => (
-      <EndCard
-        durationInFrames={durationInFrames}
-        lead={props.endCardLead}
-        url={props.endCardUrl}
-      />
-    ),
-  },
+/** Scene lengths in seconds, in running order. */
+export const PACE = {
+  tight: [3.6, 3.0, 3.0, 2.7, 2.6, 2.1],
+  calm: [4.0, 3.9, 3.8, 3.3, 3.2, 2.3],
+} as const;
+
+export type Pace = keyof typeof PACE;
+
+/** Each scene renders itself, so one can take props the others do not. */
+const RENDERERS = [
+  (d: number) => <Intro durationInFrames={d} />,
+  (d: number) => <EmailScan durationInFrames={d} />,
+  (d: number) => <MeetingScan durationInFrames={d} />,
+  (d: number) => <Opportunities durationInFrames={d} />,
+  (d: number) => <RevenueGrowth durationInFrames={d} />,
+  (d: number, p: AbacorPromoProps) => (
+    <EndCard durationInFrames={d} lead={p.endCardLead} url={p.endCardUrl} />
+  ),
 ];
 
-/**
- * Frames by which each scene overlaps the one before it.
- *
- * Without this the scenes butt up against each other: a scene reaches opacity
- * 0 on its own last frame and the next starts at 0, so the page sits empty for
- * the length of both fades. Overlapping them turns that dead gap into a real
- * cross-dissolve. Keep it <= the 12-frame fade in <Scene />.
- */
-const OVERLAP = 12;
+const SCENE_IDS = [
+  'intro',
+  'email',
+  'meeting',
+  'opportunities',
+  'revenue',
+  'end',
+] as const;
 
-/** Start frame of scene `index`, accounting for the overlap. */
-const sceneStart = (index: number): number =>
-  SCENES.slice(0, index).reduce((total, s) => total + seconds(s.seconds), 0) -
+/**
+ * Frames by which each scene overlaps the one before it. The system's scene
+ * duration is 400ms, which is 12 frames at 30fps.
+ *
+ * Without the overlap a scene reaches opacity 0 on its own last frame while
+ * the next starts at 0, leaving the page empty for the length of both fades.
+ */
+const OVERLAP = D.scene;
+
+const sceneStart = (pace: Pace, index: number): number =>
+  PACE[pace].slice(0, index).reduce((total, s) => total + seconds(s), 0) -
   index * OVERLAP;
 
-/** Total composition length in frames - used by Root.tsx. */
-export const promoDuration = (): number =>
-  sceneStart(SCENES.length - 1) + seconds(SCENES[SCENES.length - 1]!.seconds);
+/** Total length in frames. Root.tsx registers each cut with this. */
+export const promoDuration = (pace: Pace): number =>
+  sceneStart(pace, PACE[pace].length - 1) + seconds(PACE[pace][PACE[pace].length - 1]!);
 
-export const AbacorPromo: React.FC<AbacorPromoProps> = (props) => {
-  return (
-    <AbsoluteFill style={{background: BRAND.page}}>
-      {/* Very soft warm wash so the flat background is not dead flat. */}
-      <AbsoluteFill
-        style={{
-          background: `radial-gradient(120% 80% at 50% 0%, ${BRAND.orange}0D 0%, rgba(255,255,255,0) 60%)`,
-        }}
-      />
-
-      {SCENES.map((scene, index) => {
-        const durationInFrames = seconds(scene.seconds);
+export const makeAbacorPromo =
+  (pace: Pace): React.FC<AbacorPromoProps> =>
+  (props) => (
+    // The warm paper surface the system reserves for decks and presentation.
+    <AbsoluteFill style={{background: PAPER}}>
+      {SCENE_IDS.map((id, index) => {
+        const durationInFrames = seconds(PACE[pace][index]!);
 
         return (
           <Sequence
-            key={scene.id}
-            from={sceneStart(index)}
+            key={id}
+            from={sceneStart(pace, index)}
             durationInFrames={durationInFrames}
-            name={scene.id}
+            name={id}
           >
-            {scene.render(durationInFrames, props)}
+            {RENDERERS[index]!(durationInFrames, props)}
           </Sequence>
         );
       })}
     </AbsoluteFill>
   );
-};
+
+export const AbacorPromo = makeAbacorPromo('tight');
+export const AbacorPromoCalm = makeAbacorPromo('calm');

@@ -2,6 +2,7 @@ import React from 'react';
 import {Composition, Folder} from 'remotion';
 import {
   AbacorPromo,
+  AbacorPromoCalm,
   abacorPromoDefaultProps,
   abacorPromoSchema,
   promoDuration,
@@ -48,10 +49,21 @@ export const RemotionRoot: React.FC = () => {
   return (
     <>
       {/* The Abacor product promo. */}
+      {/* 15.0s. Faster than the design system's 45 frame minimum hold. */}
       <Composition
         id="AbacorPromo"
         component={AbacorPromo}
-        durationInFrames={promoDuration()}
+        durationInFrames={promoDuration('tight')}
+        {...CANVAS}
+        schema={abacorPromoSchema}
+        defaultProps={abacorPromoDefaultProps}
+      />
+
+      {/* 18.5s. Every scene clears the 45 frame hold. */}
+      <Composition
+        id="AbacorPromoCalm"
+        component={AbacorPromoCalm}
+        durationInFrames={promoDuration('calm')}
         {...CANVAS}
         schema={abacorPromoSchema}
         defaultProps={abacorPromoDefaultProps}
