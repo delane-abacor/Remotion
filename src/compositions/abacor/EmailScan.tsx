@@ -25,10 +25,10 @@ import {SFX, SFX_VOLUME} from '../../sfx';
  * attention-tag tint, which is a wash rather than a second solid orange.
  */
 
-const SCAN_FROM = 6;
-const SCAN_TO = 40;
+const SCAN_FROM = 4;
+const SCAN_TO = 32;
 const HIGHLIGHT_AT = [0.18, 0.46, 0.74];
-const TOAST_AT = 44;
+const TOAST_AT = 34;
 
 export const EmailScan: React.FC<{durationInFrames: number}> = ({durationInFrames}) => {
   const frame = useCurrentFrame();
@@ -116,7 +116,7 @@ export const EmailScan: React.FC<{durationInFrames: number}> = ({durationInFrame
         name="Found"
       />
 
-      <AppShell activeRail={1}>
+      <AppShell>
         <AbsoluteFill
           style={{
             padding: S.s8 * s,

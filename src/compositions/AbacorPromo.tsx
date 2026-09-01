@@ -25,8 +25,8 @@ import {seconds} from '../video';
  * because dense UI needs reading time. Six beats cannot honour that inside 15
  * seconds, so there are two registered cuts:
  *
- *   tight  15.0s  every scene holds 20-39 frames, under the minimum
- *   calm   18.5s  every scene clears 45, as the system asks
+ *   tight  12.0s  scenes hold 13-30 frames, well under the minimum
+ *   calm   15.5s  scenes hold 28-45, closer to it
  *
  * Both render from identical scenes; only the durations differ.
  */
@@ -47,8 +47,8 @@ export const abacorPromoDefaultProps: AbacorPromoProps = {
 
 /** Scene lengths in seconds, in running order. */
 export const PACE = {
-  tight: [3.6, 3.0, 3.0, 2.7, 2.6, 2.1],
-  calm: [4.0, 3.9, 3.8, 3.3, 3.2, 2.3],
+  tight: [2.9, 2.5, 2.5, 2.2, 2.1, 1.8],
+  calm: [3.4, 3.3, 3.2, 2.8, 2.7, 2.1],
 } as const;
 
 export type Pace = keyof typeof PACE;

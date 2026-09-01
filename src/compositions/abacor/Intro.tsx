@@ -16,12 +16,12 @@ const LINE_1 = 'Introducing';
 const LINE_2 = 'Abacor’s revenue assistant';
 
 /** Frames per character. */
-const SPEED_1 = 2;
-const SPEED_2 = 1.2;
+const SPEED_1 = 1.6;
+const SPEED_2 = 1;
 
 const LINE_1_START = 4;
 const LINE_1_END = LINE_1_START + LINE_1.length * SPEED_1;
-const LINE_2_START = LINE_1_END + 4;
+const LINE_2_START = LINE_1_END + 3;
 const LINE_2_END = LINE_2_START + LINE_2.length * SPEED_2;
 
 /** Frames per caret blink once typing has finished. */

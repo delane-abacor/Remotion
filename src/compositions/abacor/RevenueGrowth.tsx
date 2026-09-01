@@ -37,7 +37,7 @@ const END_REVENUE = 927500;
 const CHART_H = 220;
 
 const BAR_STAGGER = 2;
-const FIRST_BAR = 6;
+const FIRST_BAR = 4;
 const COUNT_FRAMES = 20;
 
 export const RevenueGrowth: React.FC<{durationInFrames: number}> = ({
@@ -82,7 +82,7 @@ export const RevenueGrowth: React.FC<{durationInFrames: number}> = ({
         name="Growth"
       />
 
-      <AppShell activeRail={4}>
+      <AppShell>
         <AbsoluteFill
           style={{
             padding: S.s8 * s,

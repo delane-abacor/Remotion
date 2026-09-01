@@ -23,10 +23,10 @@ import {SFX, SFX_VOLUME} from '../../sfx';
  * second solid orange. The beam and then the toast tick carry the budget.
  */
 
-const SCAN_FROM = 6;
-const SCAN_TO = 38;
+const SCAN_FROM = 4;
+const SCAN_TO = 30;
 const HIGHLIGHT_AT = [0.2, 0.5, 0.76];
-const TOAST_AT = 42;
+const TOAST_AT = 32;
 
 export const MeetingScan: React.FC<{durationInFrames: number}> = ({durationInFrames}) => {
   const frame = useCurrentFrame();
@@ -84,7 +84,7 @@ export const MeetingScan: React.FC<{durationInFrames: number}> = ({durationInFra
         name="Found"
       />
 
-      <AppShell activeRail={2}>
+      <AppShell>
         <AbsoluteFill
           style={{
             padding: S.s8 * s,

@@ -20,7 +20,7 @@ export const EndCard: React.FC<{
   const {fps} = useVideoConfig();
   const s = useDesignScale();
 
-  const leadIn = abacorSpring({frame, fps, delay: 4});
+  const leadIn = abacorSpring({frame, fps, delay: 3});
   const urlIn = abacorSpring({frame, fps, delay: 10});
 
   return (

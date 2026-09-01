@@ -45,7 +45,7 @@ const TARGET = 60000;
 const money = (n: number) => '$' + Math.round(n).toLocaleString('en-US');
 
 const ROW_STAGGER = 2;
-const FIRST_ROW = 8;
+const FIRST_ROW = 5;
 /** Numbers count up over 20 frames and land on the real value. */
 const COUNT_FRAMES = 20;
 
@@ -87,7 +87,7 @@ export const Opportunities: React.FC<{durationInFrames: number}> = ({
         name="Total"
       />
 
-      <AppShell activeRail={3}>
+      <AppShell>
         <AbsoluteFill
           style={{
             padding: S.s8 * s,
