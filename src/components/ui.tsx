@@ -165,7 +165,7 @@ export const Tag: React.FC<{
         fontSize: T.t10 * s,
         letterSpacing: LS.tag * T.t10 * s,
         lineHeight: LH.tight,
-        background: attention ? ORANGE.a07 : INK.a04,
+        background: attention ? ORANGE.a14 : INK.a04,
         border: `${1 * s}px solid ${attention ? ORANGE.a25 : OUTLINE}`,
         color: attention ? ORANGE.base : INK.a60,
         whiteSpace: 'nowrap',
@@ -319,7 +319,7 @@ export const ScanBeam: React.FC<{progress: number}> = ({progress}) => {
           right: 0,
           top: 0,
           height: `${y}%`,
-          background: ORANGE.a05,
+          background: ORANGE.a10,
         }}
       />
       <div
@@ -365,7 +365,7 @@ export const Highlight: React.FC<{
         style={{
           position: 'absolute',
           inset: 0,
-          background: ORANGE.a07,
+          background: ORANGE.a14,
           border: `${1 * s}px solid ${ORANGE.a25}`,
           borderRadius: R.r4 * s,
           transformOrigin: 'left center',

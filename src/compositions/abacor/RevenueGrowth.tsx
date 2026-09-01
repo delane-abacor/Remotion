@@ -142,7 +142,7 @@ export const RevenueGrowth: React.FC<{durationInFrames: number}> = ({
                           flex: 1,
                           height: `${bar.value * grow * 100}%`,
                           borderRadius: `${R.r4 * s}px ${R.r4 * s}px 0 0`,
-                          background: isLast ? ORANGE.base : ORANGE.wash,
+                          background: isLast ? ORANGE.base : ORANGE.pale,
                         }}
                       />
                     );
