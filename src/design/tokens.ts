@@ -104,6 +104,20 @@ export const NEUTRAL_TRACK = '#D9D9D9';
 /** Warm surface, used for decks. This video sits on it. */
 export const PAPER = '#E8E6DE';
 
+/**
+ * EXPOSURE
+ *
+ * The product is a white surface, correctly, but on a screen-filling video that
+ * is punishing: measured on the finished frame, mean luminance was 241.8 of 255
+ * with 86.5% of the picture above 245. Fifteen seconds of that glares.
+ *
+ * This scales the whole composition's output multiplicatively, so every colour
+ * keeps its relationship to every other and contrast ratios are unchanged. It
+ * is an exposure decision about the medium, not a palette change: no token is
+ * edited, and setting this to 1 returns the video to the untouched values.
+ */
+export const EXPOSURE = 0.88;
+
 /* ---------- TYPEFACE ----------
    Sohne only, two weights. Kraftig is a MEDIUM (500); at 700 every label
    shouts. See src/fonts.ts for why Inter is currently standing in. */

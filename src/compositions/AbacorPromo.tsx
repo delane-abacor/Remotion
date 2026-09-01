@@ -1,7 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Sequence} from 'remotion';
 import {z} from 'zod';
-import {PAPER} from '../design/tokens';
+import {EXPOSURE, PAPER} from '../design/tokens';
 import {D} from '../design/motion';
 import {BRAND_URL} from '../brand';
 import {EmailScan} from './abacor/EmailScan';
@@ -98,6 +98,8 @@ export const makeAbacorPromo =
       style={{
         // The warm paper surface the system reserves for decks and presentation.
         background: PAPER,
+        // Exposure grade for the medium. See EXPOSURE in src/design/tokens.ts.
+        filter: `brightness(${EXPOSURE})`,
         /**
          * Force GRAYSCALE text antialiasing.
          *
