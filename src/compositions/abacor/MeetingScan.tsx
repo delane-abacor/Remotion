@@ -108,7 +108,7 @@ export const MeetingScan: React.FC<{durationInFrames: number}> = ({durationInFra
                 {/* Status strip tint, carrying the assistant's summary. */}
                 <div
                   style={{
-                    background: ORANGE.a07,
+                    background: ORANGE.a05,
                     borderRadius: R.r8 * s,
                     padding: S.s3 * s,
                     marginBottom: S.s4 * s,

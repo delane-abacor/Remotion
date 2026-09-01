@@ -94,8 +94,24 @@ export const promoDuration = (pace: Pace): number =>
 export const makeAbacorPromo =
   (pace: Pace): React.FC<AbacorPromoProps> =>
   (props) => (
-    // The warm paper surface the system reserves for decks and presentation.
-    <AbsoluteFill style={{background: PAPER}}>
+    <AbsoluteFill
+      style={{
+        // The warm paper surface the system reserves for decks and presentation.
+        background: PAPER,
+        /**
+         * Force GRAYSCALE text antialiasing.
+         *
+         * Chromium defaults to LCD subpixel antialiasing, which paints orange
+         * and blue fringes along every glyph edge. That is correct on a desktop
+         * panel and wrong for video: the fringes are real colour data, so 4:2:0
+         * chroma subsampling smears them on encode and the type reads soft and
+         * chromatic. Grayscale antialiasing removes the fringes entirely.
+         */
+        WebkitFontSmoothing: 'antialiased',
+        MozOsxFontSmoothing: 'grayscale',
+        textRendering: 'geometricPrecision',
+      }}
+    >
       {SCENE_IDS.map((id, index) => {
         const durationInFrames = seconds(PACE[pace][index]!);
 

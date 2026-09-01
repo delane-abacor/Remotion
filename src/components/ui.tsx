@@ -70,7 +70,29 @@ export const Scene: React.FC<{
     ? linearFade(frame, [0, D.scene], [0, 1])
     : linearFade(frame, [0, D.scene, last - D.scene, last], [0, 1, 1, 0]);
 
-  return <AbsoluteFill style={{opacity}}>{children}</AbsoluteFill>;
+  return (
+    <AbsoluteFill
+      style={{
+        opacity,
+        /**
+         * Forces the scene onto its own composited layer, which makes Chromium
+         * fall back to GRAYSCALE text antialiasing.
+         *
+         * By default it uses LCD subpixel antialiasing, which paints an orange
+         * fringe down the left of every stem and a blue one down the right
+         * (measured: rgb(169,90,40) and rgb(26,76,147) either side of the ink).
+         * Those fringes are real colour data, so 4:2:0 chroma subsampling
+         * smears them on encode and the type reads soft and chromatic.
+         *
+         * -webkit-font-smoothing does not help: it is honoured only on macOS.
+         * Promoting the layer is the portable fix.
+         */
+        willChange: 'opacity, transform',
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
 };
 
 /* ------------------------------------------------------------- typography */
@@ -166,7 +188,7 @@ export const Tag: React.FC<{
         fontSize: T.t10 * s,
         letterSpacing: LS.tag * T.t10 * s,
         lineHeight: LH.tight,
-        background: attention ? ORANGE.a10 : INK.a04,
+        background: attention ? ORANGE.a07 : INK.a04,
         border: `${1 * s}px solid ${attention ? ORANGE.a25 : OUTLINE}`,
         color: attention ? ORANGE.base : INK.a60,
         whiteSpace: 'nowrap',
@@ -320,7 +342,7 @@ export const ScanBeam: React.FC<{progress: number}> = ({progress}) => {
           right: 0,
           top: 0,
           height: `${y}%`,
-          background: ORANGE.a07,
+          background: ORANGE.a05,
         }}
       />
       <div
@@ -331,7 +353,9 @@ export const ScanBeam: React.FC<{progress: number}> = ({progress}) => {
           top: `${y}%`,
           height: 2 * s,
           background: ORANGE.base,
-          boxShadow: METER.glowOrange,
+          // No glow here. A glow is a blur, and on a hairline it reads as
+          // softness rather than light. The meter keeps its glow; that one is
+          // specified by the system.
         }}
       />
     </AbsoluteFill>
@@ -366,7 +390,7 @@ export const Highlight: React.FC<{
         style={{
           position: 'absolute',
           inset: 0,
-          background: ORANGE.a10,
+          background: ORANGE.a07,
           border: `${1 * s}px solid ${ORANGE.a25}`,
           borderRadius: R.r4 * s,
           transformOrigin: 'left center',
