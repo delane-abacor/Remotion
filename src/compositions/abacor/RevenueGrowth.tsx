@@ -142,7 +142,10 @@ export const RevenueGrowth: React.FC<{durationInFrames: number}> = ({
                           flex: 1,
                           height: `${bar.value * grow * 100}%`,
                           borderRadius: `${R.r4 * s}px ${R.r4 * s}px 0 0`,
-                          background: isLast ? ORANGE.base : ORANGE.wash,
+                          // orange-wash is the system's chart fill, but at
+                          // this size on a graded frame it reads beige rather
+                          // than orange. orange-mid keeps the hue readable.
+                          background: isLast ? ORANGE.base : ORANGE.mid,
                         }}
                       />
                     );

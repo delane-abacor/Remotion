@@ -189,7 +189,7 @@ export const Tag: React.FC<{
         letterSpacing: LS.tag * T.t10 * s,
         lineHeight: LH.tight,
         background: attention ? ORANGE.a07 : INK.a04,
-        border: `${1 * s}px solid ${attention ? ORANGE.a25 : OUTLINE}`,
+        border: `${1 * s}px solid ${attention ? ORANGE.mid : OUTLINE}`,
         color: attention ? ORANGE.base : INK.a60,
         whiteSpace: 'nowrap',
       }}
@@ -391,7 +391,7 @@ export const Highlight: React.FC<{
           position: 'absolute',
           inset: 0,
           background: ORANGE.a07,
-          border: `${1 * s}px solid ${ORANGE.a25}`,
+          border: `${1 * s}px solid ${ORANGE.mid}`,
           borderRadius: R.r4 * s,
           transformOrigin: 'left center',
           transform: `scaleX(${fill})`,
