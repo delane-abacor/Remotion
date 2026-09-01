@@ -8,6 +8,7 @@ import {
   METER,
   ORANGE,
   OUTLINE,
+  OUTLINE_W,
   R,
   S,
   SHADOW,
@@ -123,7 +124,7 @@ export const MatteCard: React.FC<{
       style={{
         width: width * s,
         background: INK.a03,
-        border: `${1 * s}px solid ${OUTLINE}`,
+        border: `${OUTLINE_W * s}px solid ${OUTLINE}`,
         borderRadius: R.r12 * s,
         padding: S.s1 * s,
         ...riseIn(progress, 8 * s),
@@ -133,7 +134,7 @@ export const MatteCard: React.FC<{
       <div
         style={{
           background: WHITE.base,
-          border: `${1 * s}px solid ${OUTLINE}`,
+          border: `${OUTLINE_W * s}px solid ${OUTLINE}`,
           borderRadius: R.r8 * s,
           overflow: 'hidden',
           ...panelStyle,
@@ -165,7 +166,7 @@ export const Tag: React.FC<{
         fontSize: T.t10 * s,
         letterSpacing: LS.tag * T.t10 * s,
         lineHeight: LH.tight,
-        background: attention ? ORANGE.a14 : INK.a04,
+        background: attention ? ORANGE.a10 : INK.a04,
         border: `${1 * s}px solid ${attention ? ORANGE.a25 : OUTLINE}`,
         color: attention ? ORANGE.base : INK.a60,
         whiteSpace: 'nowrap',
@@ -240,7 +241,7 @@ export const Toast: React.FC<{
         padding: `${14 * s}px ${S.s4 * s}px`,
         borderRadius: R.r12 * s,
         background: WHITE.base,
-        border: `${1 * s}px solid ${OUTLINE}`,
+        border: `${OUTLINE_W * s}px solid ${OUTLINE}`,
         boxShadow: SHADOW.menu,
         ...riseIn(p, 8 * s),
       }}
@@ -319,7 +320,7 @@ export const ScanBeam: React.FC<{progress: number}> = ({progress}) => {
           right: 0,
           top: 0,
           height: `${y}%`,
-          background: ORANGE.a10,
+          background: ORANGE.a07,
         }}
       />
       <div
@@ -365,7 +366,7 @@ export const Highlight: React.FC<{
         style={{
           position: 'absolute',
           inset: 0,
-          background: ORANGE.a14,
+          background: ORANGE.a10,
           border: `${1 * s}px solid ${ORANGE.a25}`,
           borderRadius: R.r4 * s,
           transformOrigin: 'left center',
@@ -398,7 +399,7 @@ export const RowGlyph: React.FC<{label: string}> = ({label}) => {
         height: 28 * s,
         borderRadius: R.r6 * s,
         background: INK.a03,
-        border: `${1 * s}px solid ${OUTLINE}`,
+        border: `${OUTLINE_W * s}px solid ${OUTLINE}`,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -429,7 +430,7 @@ export const PanelHeader: React.FC<{
         alignItems: sub ? 'flex-start' : 'center',
         justifyContent: 'space-between',
         padding: `${S.s4 * s}px`,
-        borderBottom: `${1 * s}px solid ${OUTLINE}`,
+        borderBottom: `${OUTLINE_W * s}px solid ${OUTLINE}`,
       }}
     >
       <div style={{display: 'flex', flexDirection: 'column', gap: S.s1 * s}}>

@@ -86,6 +86,19 @@ export const HAIRLINE = 'rgba(0,0,0,.08)';
  * returns the video to the letter of the foundations doc.
  */
 export const OUTLINE = 'rgba(26,26,26,.12)';
+
+/**
+ * Structural outline WIDTH, in design units.
+ *
+ * A 1px border scaled by 1.24 lands on roughly 1.2 device pixels at 1080p, and
+ * h264 smears a sub-pixel line into the white beside it, so the card edges
+ * disappear on playback even though they are correct in a still. 2 design
+ * units renders near 2.5px and survives the encode.
+ *
+ * This is a video legibility decision about stroke weight, not a colour change:
+ * the border colour is still the ink-12 token.
+ */
+export const OUTLINE_W = 2;
 export const HAIRLINE_STRONG = 'rgba(0,0,0,.12)';
 export const NEUTRAL_TRACK = '#D9D9D9';
 /** Warm surface, used for decks. This video sits on it. */
